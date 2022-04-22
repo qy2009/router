@@ -1,0 +1,151 @@
+#EXTM3U
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",3+ HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/510.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",3+ HD
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/21017?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Blue Sport 1
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/578?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Blue Sport Event 2 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/62831.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Blue Sport Event 3 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/62832.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Blue Sport Event 4 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/62833.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Blue Sport Event 5 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/62834.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/T26G8fr.jpg" group-title="Undefined",CH | TVM3,TVM3
+http://tvm3.vedge.infomaniak.com/livecast/tvm3/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/eQ8xHK9.jpg" group-title="Undefined",Canal Alpha Jura
+http://canalalphaju.vedge.infomaniak.com/livecast/canalalphaju/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/eQ8xHK9.jpg" group-title="Undefined",Canal Alpha Jura
+https://canalalphaju.vedge.infomaniak.com/livecast/canalalphaju/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/eQ8xHK9.jpg" group-title="Undefined",Canal Alpha Jura (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:canalalphaju/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/eQ8xHK9.jpg" group-title="Undefined",Canal Alpha Neuchatel (1080p) [Not 24/7]
+https://edge.vedge.infomaniak.com/livecast/ik:canalalpha/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/9dQuwCc.jpg" group-title="Undefined",Die Neue Zeit
+https://www.onairport.live/die-neue-zeit-tv-live/livestream_high/chunklist_w2039349636.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/9dQuwCc.jpg" group-title="Undefined",Die Neue Zeit (576p)
+https://www.onairport.live/die-neue-zeit-tv-live/livestream/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/nQVDOVb.png" group-title="Undefined",Kanal 9 auf Deutsch (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:livesd2/master.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/nQVDOVb.png" group-title="Undefined",Kanal 9 auf Deutsch (1080p)
+https://livesd2.vedge.infomaniak.com/livecast/ik:livesd2/master.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/nQVDOVb.png" group-title="Undefined",Kanal 9 en Français (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:livehd/master.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/nQVDOVb.png" group-title="Undefined",Kanal 9 en Français (1080p)
+https://livehd.vedge.infomaniak.com/livecast/livehd/master.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/UE1E3uH.png" group-title="Undefined",LFM TV (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:lfmhd/manifest.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/UE1E3uH.png" group-title="Undefined",LFM TV (360p)
+https://edge.vedge.infomaniak.com/livecast/ik:lfmmd/manifest.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/UE1E3uH.png" group-title="Undefined",LFM TV (360p)
+https://lfmmd.vedge.infomaniak.com/livecast/smil:lfmmd.smil/manifest.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/JiAnDPu.png" group-title="Undefined",La Tele
+http://livevideo.infomaniak.com/streaming/livecast/latele/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/JiAnDPu.png" group-title="Undefined",La Tele
+https://latele.vedge.infomaniak.com/livecast/latele/chunklist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/JiAnDPu.png" group-title="Undefined",La Tele
+https://livevideo.infomaniak.com/streaming/livecast/latele/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/JiAnDPu.png" group-title="Undefined",La Télé (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:latele/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 1 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/71.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 2 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/72.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 4 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/74.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 5 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/75.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 6 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/76.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 7 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/77.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 8 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/78.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",MySports 9 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/79.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",Mysports 3 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/16799.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",NourSat
+http://red.ipfox.org:8080/amer/amer1234/35148?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",Noursat Alchabab
+http://red.ipfox.org:8080/amer/amer1234/35151?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/YEQ957V.png" group-title="Undefined",One TV (360p)
+https://edge.vedge.infomaniak.com/livecast/ik:onefmmd/manifest.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",Puls 8 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/2078.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",RSI LA 1
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/572?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",RSI LA 2
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/573?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",RTS Deux
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/575?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",RTS UN HD
+http://revteam1.offshorerev.cc:80/4529036487475419/160417160718/48816?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",RTS Un
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/574?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/lp23ChL.jpg" group-title="Undefined",Radio 3i (Webradio)
+https://livestream.gruppocdt.ch/hls/radio3i.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",Radio Pilatus (1080p)
+https://rp_tv_1.vedge.infomaniak.com/livecast/rp_tv_1/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/lQzG2lg.png" group-title="Undefined",Radio Pilatus TV
+https://livevideo.infomaniak.com/streaming/livecast/rp_tv_1/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/lQzG2lg.png" group-title="Undefined",Radio Pilatus TV (1080p)
+https://edge.vedge.infomaniak.com/livecast/ik:rp_tv_1/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/G030MZb.png" group-title="Undefined",Rouge TV
+http://rougetv.vedge.infomaniak.com/livecast/rougetv/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/G030MZb.png" group-title="Undefined",Rouge TV
+https://rougetv.vedge.infomaniak.com/livecast/rougetv/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/PzF6q9I.png" group-title="Undefined",Rouge TV (Opt-2)
+rtmp://rougetv.vedge.infomaniak.com:1935/livecast/rougetv?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SAT 7 ARABIC
+http://red.ipfox.org:8080/amer/amer1234/35139?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF 1
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/570?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF 1 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/80.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF 2
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/571?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF 2 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/81.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF Info
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/21016?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",SRF Info HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/511.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",THE SWIZZ HD
+http://revteam1.offshorerev.cc:80/4529036487475419/160417160718/48835?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",TV24 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/64608.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Logo_TVM3_2015.png/1200px-Logo_TVM3_2015.png" group-title="Undefined",TVM 3
+http://livevideo.infomaniak.com/streaming/livecast/tvm3/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://raw.githubusercontent.com/jnk22/kodinerds-iptv/master/logos/tv/tvm3.png" group-title="Undefined",TVM3 (1080p)
+https://edge.vedge.infomaniak.com/livecast/tvm3/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://icanlive.tv/pictures/tele1.jpg" group-title="Undefined",Tele 1
+https://cdnapisec.kaltura.com/p/1719221/sp/171922100/playManifest/entryId/1_xias5bqq/format/applehttp/protocol/https/a.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://raw.githubusercontent.com/jnk22/kodinerds-iptv/master/logos/tv/telem1.png" group-title="Undefined",Tele M1 HD
+https://cdnapisec.kaltura.com/p/1719221/sp/171922100/playManifest/entryId/1_ljzy3evp/format/applehttp/protocol/https/a.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",Tele Zurich
+http://romanija.xyz:8080/22supertv7753/razmjena5262352/576?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/bPpWJj2.png" group-title="Undefined",TeleBielingue (720p)
+https://edge.vedge.infomaniak.com/livecast/ik:telebielinguech/manifest.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/HuPkeOg.jpg" group-title="Undefined",TeleTicino
+https://livestream.gruppocdt.ch/hls/teleticino_720p/index.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="https://i.imgur.com/mMXYqtm.png" group-title="Undefined",Telebasel (432p)
+https://cldf-wzw-live.r53.cdn.tv1.eu/10096xtelebase/_definst_/1000199copo/live/app510394368/w162136077/live_de_1500/playlist.m3u8?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",blue Action HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/84.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",blue Prime HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/83.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",blue Sport 1 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/85.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",blue Sport 1 HD (HEVC)
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/10105.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",blue Sport 2 HD (HEVC)
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/10106.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Sport",blue Sport Event 1 HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/14963.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",blue Stars HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/82.ts?checkedby:iptvcat.com
+#EXTINF:0 tvg-country="CH" tvg-logo="" group-title="Undefined",blue Zoom HD
+http://iptv.watchhd.cc:5050/kelevra321/UWqjWR89sRNT/419.ts?checkedby:iptvcat.com
