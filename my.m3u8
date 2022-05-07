@@ -1,25 +1,25 @@
 #EXTM3U
-#EXTINF:0,Tele 1
+#EXTINF:-1,Tele 1
 https://list.iptvcat.com/my_list/s/01036139ac8c16810c37610f81eb8f70.m3u8
-#EXTINF:0,TVM3
+#EXTINF:-1,TVM3
 https://list.iptvcat.com/my_list/s/b86e59099a4dc301e26cadeebaf744e1.m3u8
-#EXTINF:0,Die Neue Zeit
+#EXTINF:-1,Die Neue Zeit
 https://list.iptvcat.com/my_list/s/fe1c3841b4ac042e0a0d22fb17e8ac36.m3u8	
-#EXTINF:0,13th Street 4K
+#EXTINF:-1,13th Street 4K
 https://list.iptvcat.com/my_list/s/14d309a674809761b885d2b3301d452f.m3u8
-#EXTINF:0,13th Street
+#EXTINF:-1,13th Street
 https://list.iptvcat.com/my_list/s/833f83d32e49e9dee313872763c53d18.m3u8
-#EXTINF:0,ABC
+#EXTINF:-1,ABC
 https://list.iptvcat.com/my_list/s/99c1b0516d010954c99715dcfe68eb29.m3u8
-#EXTINF:0,ABC-NY
+#EXTINF:-1,ABC-NY
 https://list.iptvcat.com/my_list/s/b522ebc6de3bdbd95cbd15f0ac33fbd8.m3u8
-#EXTINF:0,CNBC
+#EXTINF:-1,CNBC
 https://list.iptvcat.com/my_list/s/53255eb75f4096e2c5e71af3c10aafb0.m3u8
-#EXTINF:0,MSNBC
+#EXTINF:-1,MSNBC
 https://list.iptvcat.com/my_list/s/0ac6b1c9c5a6844f55d6d7758c5342c8.m3u8
-#EXTINF:0,CBS 2 (KCBS) Los Angeles
+#EXTINF:-1,CBS 2 (KCBS) Los Angeles
 https://list.iptvcat.com/my_list/s/4b1b08658bfb62c637368fcc38c92e1b.m3u8
-#EXTINF:0,CBS News Los Angeles
+#EXTINF:-1,CBS News Los Angeles
 https://list.iptvcat.com/my_list/s/9fb1f647a5382fbecb88927476f6f2c4.m3u8
-#EXTINF:0,NBC 4 (KNBC) Los Angeles
+#EXTINF:-1,NBC 4 (KNBC) Los Angeles
 https://list.iptvcat.com/my_list/s/a5d8925cfd15ed6e603c10869666bb92.m3u8
