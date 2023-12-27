@@ -5,11 +5,8 @@ mode: Rule
 log-level: info
 external-controller: :9090
 proxies:
-  - {name: 佛山wireguard,type: wireguard,server: 152.70.149.17,port: 9904,ip: 10.0.10.5,public-key: p0hi0NezM50tQG2cZHJu7qlXyWypbeJACjL6dGzZzz8=,private-key:  0PTXVgPUcw9RV4Xlbs539q/vle00SyMnghD1OPM3yHo=,mtu: 1280,udp: true}
   - {name: 佛山socks, type: socks5, server: 152.70.149.17, port: 9902, username: 6F4VQs, password: 9hAFBaKiw1KocaCLy2xO0o23, tls: true, skip-cert-verify: true}
   - {name: 佛山http, type: http, server: 152.70.149.17, port: 9903, username: P85lzR0t, password: 9hAFBaKiw1Kox0CLy2xO0o23, tls: true, skip-cert-verify: true}
-  - {name: 瑞士,type: wireguard,server: 152.70.149.17,port: 9904,ip: 10.8.0.4,public-key: c+MzcHaxtrm0TLp9oyTPtg6mJHYHY+ZznSQDqEPd4wQ=,private-key: mILwolNT0YT0AVUouCH2ivP46Zfupmwo2BaEhs9LW1g=,preshared-key: TUq4zCIjkK8hPXeQ8+tWygajmnuizvF87+ai0QPGgGM=,mtu: 1280,udp: true}
-  - {name: 美国,type: wireguard,server: 152.70.149.17,port: 51820,ip: 10.8.0.4,public-key: GOVY+2Nyn4hbDGf11zUoXu9Yc3xsbsNyWQZhRUjfY2c=,private-key: eNLN0QnvGMtTPo1NhwaHN6y+Wge/D4PGtZcyGDFfk3M=,preshared-key: Udxvs0QGZCEBrX/m7+VDydUq/v0hHsQNeb4Zy21q0do=,mtu: 1280,udp: true}
   - {name: usa,"type":"trojan","server":"gous.ergonomicchaircentral.com","port":8443,"udp":true,"password":"lBwFImdmlQ","skip-cert-verify":true }
   - {name: swiss,"type":"trojan","server":"goch.ergonomicchaircentral.com","port":8443,"udp":true,"password":"CO2muCDQeN","skip-cert-verify":true,"network":"tcp"}
   - {"name":"佛山tailscale","type":"vmess","server":"100.96.116.133","port":58496,"cipher":"auto","uuid":"aa53b39d-eb84-4c04-e076-bc95a2ff617b","alterId":0,"tls":false,"skip-cert-verify":true,"network":"tcp"}
@@ -26,7 +23,6 @@ proxy-groups:
     proxies:
       - 佛山socks
       - 佛山http
-      - 佛山wireguard
       - 佛山tailscale
       - 阿里云
     url: 'http://www.gstatic.com/generate_204'
@@ -86,5 +82,4 @@ rules:
  - IP-CIDR,193.112.159.225/32,Netease Music
  - IP-CIDR,223.252.199.66/32,Netease Music
  - IP-CIDR,223.252.199.67/32,Netease Music
- - GEOIP,CH,swiss
  - MATCH,DIRECT
