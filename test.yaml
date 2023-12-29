@@ -5,14 +5,11 @@ mode: Rule
 log-level: info
 external-controller: :9090
 proxies:
-  - {name: 佛山socks, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: true, skip-cert-verify: true, udp: false}
-  - {name: 佛山http, type: http, server: 152.70.149.17, port: 9903, username: 'P85lzR0t', password: '9hAFBaKiw1Kox0CLy2xO0o23', tls: true, skip-cert-verify: true}
-  - {"name":"socks","type":"socks5","server":"152.70.149.17","port":9902,"username":"6F4VQs","password":"9hAFBaKiw1KocaCLy2xO0o23","tls":"true","skip-cert-verify":"true"}
-  - {"name":"http","type":"http","server":"152.70.149.17","port":9903,"username":"P85lzR0t","password":"9hAFBaKiw1Kox0CLy2xO0o23","tls":"true","skip-cert-verify":"true"}
-  - {name: usa,"type":"trojan","server":"gous.ergonomicchaircentral.com","port":8443,"udp":true,"password":"lBwFImdmlQ","skip-cert-verify":true }
-  - {name: swiss,"type":"trojan","server":"goch.ergonomicchaircentral.com","port":8443,"udp":true,"password":"CO2muCDQeN","skip-cert-verify":true,"network":"tcp"}
-  - {"name":"佛山tailscale","type":"vmess","server":"100.96.116.133","port":58496,"cipher":"auto","uuid":"aa53b39d-eb84-4c04-e076-bc95a2ff617b","alterId":0,"tls":false,"skip-cert-verify":true,"network":"tcp"}
-  - {"name": "阿里云","type":"vmess","server":"www.wto.org","port":443,"cipher":"auto","uuid":"9d240ace-9efd-4577-a616-04cfe0eec437","alterId":0,"tls":true,"skip-cert-verify":true,"servername":"proceeds-europe-finals-excess.trycloudflare.com","network":"ws","ws-opts":{"path":"9d240ace-9efd-4577-a616-04cfe0eec437-vm","headers":{"host":"proceeds-europe-finals-excess.trycloudflare.com"}}}             
+  - {name: 佛山socks1, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: true, skip-cert-verify: true, udp: true}
+  - {name: 佛山socks2, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: false, skip-cert-verify: true, udp: true}
+  - {name: 佛山socks3, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: true, skip-cert-verify: true, udp: false}
+  - {name: 佛山socks4, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: false, skip-cert-verify: true, udp: false}
+  - {name: 佛山http, type: http, server: 152.70.149.17, port: 9903, username: "P85lzR0t", password: "9hAFBaKiw1Kox0CLy2xO0o23"}
 proxy-groups:
   - name: YouTubeGroup
     type: fallback
@@ -23,12 +20,11 @@ proxy-groups:
   - name: Netease Music
     type: select
     proxies:
-      - 佛山socks
-      - http
-      - socks
+      - 佛山socks1
       - 佛山http
-      - 佛山tailscale
-      - 阿里云
+      - 佛山socks2
+      - 佛山socks3
+      - 佛山socks4
     url: 'http://www.gstatic.com/generate_204'
     interval: 300
 rules:
