@@ -11,7 +11,6 @@ proxies:
   - {name: 佛山socks4, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: false, skip-cert-verify: true, udp: true}
   - {name: 佛山http1, type: http, server: 152.70.149.17, port: 9903, username: "P85lzR0t", password: "9hAFBaKiw1Kox0CLy2xO0o23", tls: false, skip-cert-verify: true}
   - {name: 佛山http2, type: http, server: 152.70.149.17, port: 9903, username: "P85lzR0t", password: "9hAFBaKiw1Kox0CLy2xO0o23", tls: true, skip-cert-verify: true}
-  - {"name":"socks","type":"socks5","server":"152.70.149.17","port":9902,"username":"6F4VQs","password":"9hAFBaKiw1KocaCLy2xO0o23","tls": "true","skip-cert-verify":"true", "udp":"true"}   
 proxy-groups:
   - name: Netease Music
     type: select
