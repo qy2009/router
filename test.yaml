@@ -11,12 +11,6 @@ proxies:
   - {name: 佛山socks4, type: socks5, server: 152.70.149.17, port: 9902, username: '6F4VQs', password: '9hAFBaKiw1KocaCLy2xO0o23', tls: false, skip-cert-verify: true, udp: false}
   - {name: 佛山http, type: http, server: 152.70.149.17, port: 9903, username: "P85lzR0t", password: "9hAFBaKiw1Kox0CLy2xO0o23"}
 proxy-groups:
-  - name: YouTubeGroup
-    type: fallback
-    proxies:
-      - usa
-    url: 'http://www.gstatic.com/generate_204'
-    interval: 300
   - name: Netease Music
     type: select
     proxies:
@@ -31,25 +25,6 @@ rules:
  - GEOIP,LAN,DIRECT
  - SRC-IP-CIDR,10.0.0.40/32,DIRECT
  - SRC-IP-CIDR,10.0.0.41/32,DIRECT
- - DOMAIN-SUFFIX,ggpht.cn,YouTubeGroup
- - DOMAIN-SUFFIX,ggpht.com,YouTubeGroup
- - DOMAIN-SUFFIX,googlevideo.com,YouTubeGroup
- - DOMAIN-SUFFIX,gvt1.com,YouTubeGroup
- - DOMAIN-SUFFIX,gvt2.com,YouTubeGroup
- - DOMAIN-SUFFIX,video.google.com,YouTubeGroup
- - DOMAIN-SUFFIX,withyoutube.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtu.be,YouTubeGroup
- - DOMAIN-SUFFIX,youtube-nocookie.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtube-ui.l.google.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtube.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtubeeducation.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtubeembeddedplayer.googleapis.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtubefanfest.com,YouTubeGroup
- - DOMAIN-SUFFIX,youtubegaming.com,YouTubeGroup
- - DOMAIN-KEYWORD,youtube,YouTubeGroup
- - IP-CIDR,172.110.32.0/21,YouTubeGroup
- - IP-CIDR,216.73.80.0/20,YouTubeGroup
- - IP-CIDR6,2620:120:e000::/40,YouTubeGroup
  - DOMAIN-SUFFIX,163yun.com,Netease Music
  - DOMAIN-SUFFIX,music.163.com,Netease Music
  - DOMAIN-SUFFIX,music.126.net,Netease Music
