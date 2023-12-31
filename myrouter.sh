@@ -9,3 +9,5 @@ opkg install 01_taskd_1.0.3-1_all.ipk
 opkg install 02_luci-lib-xterm_4.18.0_all.ipk
 opkg install 03_luci-lib-taskd_1.0.17_all.ipk 
 opkg install 04_luci-app-store_0.1.14-2_all.ipk
+uci set luci.main.mediaurlbase='/luci-static/argon'
+uci commit
