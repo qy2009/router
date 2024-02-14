@@ -1,6 +1,6 @@
 #!/bin/sh
 opkg update
-opkg install luci-compat luci-app-frpc openssh-sftp-server luci-app-argon-config luci-app-acme
+opkg install nano luci-compat luci-app-frpc openssh-sftp-server luci-app-argon-config luci-app-acme
 wget --no-check-certificate -O 01_taskd_1.0.3-1_all.ipk https://cdn.jsdelivr.net/gh/qy2009/iptv@master/01_taskd_1.0.3-1_all.ipk
 wget --no-check-certificate -O 02_luci-lib-xterm_4.18.0_all.ipk https://cdn.jsdelivr.net/gh/qy2009/iptv@master/02_luci-lib-xterm_4.18.0_all.ipk
 wget --no-check-certificate -O 03_luci-lib-taskd_1.0.17_all.ipk https://cdn.jsdelivr.net/gh/qy2009/iptv@master/03_luci-lib-taskd_1.0.17_all.ipk
