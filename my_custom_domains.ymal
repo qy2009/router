@@ -1,0 +1,37 @@
+payload:
+  # Banks & Finance
+  - "+.americanexpress.com"
+  - "+.amexnetwork.com"
+  - "+.chase.com"
+  - "+.jpmorgan.com"
+  - "+.citi.com"
+  - "+.citibank.com"
+  - "+.pnc.com"
+  - "+.hsbc.com"
+  - "+.usbank.com"
+  - "+.schwab.com"
+  - "+.fidelity.com"
+  - "+.bankofamerica.com"
+  - "+.bofa.com"
+  - "+.barclays.com"
+  - "+.discover.com"
+  - "+.penfed.org"
+  - "+.paypal.com"
+  - "+.paypalobjects.com"
+  
+  # Travel & Shopping
+  - "+.hilton.com"
+  - "+.marriott.com"
+  - "+.ihg.com"
+  - "+.ebay.com"
+  - "+.amazon.com"
+  - "+.images-amazon.com"
+  - "+.cvs.com"
+
+  # Social & Apps
+  - "+.workday.com"
+  - "+.workdaycdn.com"
+  - "+.instagram.com"
+  - "+.x.com"
+  - "+.twitter.com"
+  - "+.t-mobile.com"
