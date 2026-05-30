@@ -1,27 +1,29 @@
 #!/bin/bash
 # =============================================================
-# Debian Server Setup Script
-# - Install curl & sudo
+# Debian Server Setup Script (Oracle Cloud - No UFW)
+# - Install curl and sudo
 # - Change SSH port to 6622
 # - Enable root SSH login
 # - Enable password authentication
 # - Install & configure fail2ban
+# - Enable TCP BBR congestion control
+# - Create 1GB swap file
+# NOTE: Port management is handled via OCI Security List
 # =============================================================
 
-set -e  # Exit immediately on error
+set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-log()    { echo -e "${GREEN}[+]${NC} $1"; }
-warn()   { echo -e "${YELLOW}[!]${NC} $1"; }
-error()  { echo -e "${RED}[x]${NC} $1"; exit 1; }
+log()   { echo -e "${GREEN}[+]${NC} $1"; }
+warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
+error() { echo -e "${RED}[x]${NC} $1"; exit 1; }
 
-# Must be run as root
 if [ "$EUID" -ne 0 ]; then
-  error "Please run as root: sudo bash debian-setup.sh"
+  error "Please run as root: sudo bash vps-setup"
 fi
 
 # -------------------------------------------------------------
@@ -53,34 +55,23 @@ log "Enabling password authentication..."
 sed -i 's/^#*PasswordAuthentication .*/PasswordAuthentication yes/' "$SSHD_CONFIG"
 grep -q "^PasswordAuthentication " "$SSHD_CONFIG" || echo "PasswordAuthentication yes" >> "$SSHD_CONFIG"
 
-log "Verifying SSH config changes..."
+log "Verifying SSH config..."
 sshd -T | grep -E "^(port|permitrootlogin|passwordauthentication)"
 
 # -------------------------------------------------------------
-# 3. Open port 6622 in firewall (UFW or iptables)
-# -------------------------------------------------------------
-if command -v ufw &>/dev/null; then
-  log "Opening port 6622 in UFW..."
-  ufw allow 6622/tcp
-  ufw reload
-else
-  log "UFW not found, using iptables to open port 6622..."
-  iptables -A INPUT -p tcp --dport 6622 -j ACCEPT
-fi
-
-# -------------------------------------------------------------
-# 4. Restart SSH service
+# 3. Restart SSH service
 # -------------------------------------------------------------
 log "Restarting SSH service..."
 systemctl restart sshd
 
 # -------------------------------------------------------------
-# 5. Install and configure fail2ban
+# 4. Install and configure fail2ban
 # -------------------------------------------------------------
 log "Installing fail2ban..."
 apt-get install -y fail2ban
 
 log "Configuring fail2ban for SSH on port 6622..."
+mkdir -p /etc/fail2ban/jail.d
 cat > /etc/fail2ban/jail.d/sshd.local << 'JAIL'
 [sshd]
 enabled = true
@@ -90,9 +81,79 @@ bantime = 3600
 findtime = 600
 JAIL
 
-log "Enabling and starting fail2ban..."
+log "Enabling and restarting fail2ban..."
 systemctl enable fail2ban
 systemctl restart fail2ban
+
+# -------------------------------------------------------------
+# 5. Enable TCP BBR congestion control
+# -------------------------------------------------------------
+log "Checking kernel version for BBR support (requires >= 4.9)..."
+KERNEL_MAJOR=$(uname -r | cut -d. -f1)
+KERNEL_MINOR=$(uname -r | cut -d. -f2)
+
+if [ "$KERNEL_MAJOR" -lt 4 ] || { [ "$KERNEL_MAJOR" -eq 4 ] && [ "$KERNEL_MINOR" -lt 9 ]; }; then
+  warn "Kernel $(uname -r) is too old for BBR (requires >= 4.9). Skipping."
+else
+  log "Loading tcp_bbr module..."
+  modprobe tcp_bbr
+
+  log "Making tcp_bbr persistent on boot..."
+  echo 'tcp_bbr' | tee /etc/modules-load.d/bbr.conf > /dev/null
+
+  log "Writing BBR + performance sysctl settings..."
+  cat > /etc/sysctl.d/99-bbr.conf << 'SYSCTL'
+# BBR Congestion Control
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+
+# TCP Buffer Optimization
+net.core.rmem_max = 134217728
+net.core.wmem_max = 134217728
+net.ipv4.tcp_rmem = 4096 87380 134217728
+net.ipv4.tcp_wmem = 4096 65536 134217728
+
+# TCP Performance Tuning
+net.ipv4.tcp_window_scaling = 1
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_sack = 1
+net.ipv4.tcp_slow_start_after_idle = 0
+net.core.netdev_max_backlog = 5000
+
+# Swap Tuning (low-RAM server)
+vm.swappiness = 10
+vm.vfs_cache_pressure = 50
+SYSCTL
+
+  sysctl --system > /dev/null 2>&1
+
+  BBR_CHECK=$(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}')
+  if [ "$BBR_CHECK" = "bbr" ]; then
+    log "BBR is active: $(sysctl net.ipv4.tcp_congestion_control)"
+  else
+    warn "BBR may not be active yet. Current: $BBR_CHECK. Try rebooting."
+  fi
+fi
+
+# -------------------------------------------------------------
+# 6. Create 1GB Swap File
+# -------------------------------------------------------------
+log "Checking for existing swap..."
+if swapon --show | grep -q '/swapfile'; then
+  warn "Swap already exists at /swapfile, skipping."
+else
+  log "Creating 1GB swap file..."
+  fallocate -l 1G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+
+  log "Making swap persistent across reboots..."
+  echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab > /dev/null
+
+  log "Swap status:"
+  swapon --show
+fi
 
 # -------------------------------------------------------------
 # Done
@@ -106,9 +167,9 @@ echo -e "  ${GREEN}✔${NC} SSH port changed to 6622"
 echo -e "  ${GREEN}✔${NC} Root SSH login enabled"
 echo -e "  ${GREEN}✔${NC} Password authentication enabled"
 echo -e "  ${GREEN}✔${NC} fail2ban installed & configured"
+echo -e "  ${GREEN}✔${NC} TCP BBR congestion control enabled"
+echo -e "  ${GREEN}✔${NC} 1GB swap file created"
 echo ""
 warn "IMPORTANT: Test SSH on port 6622 BEFORE closing this session!"
 echo -e "  ssh -p 6622 root@YOUR_SERVER_IP"
-echo ""
-warn "If on Oracle Cloud: open port 6622 in OCI Security List too."
 echo ""
