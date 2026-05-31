@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-URLS=("https://example.com" "https://your-site-1.com" "https://your-site-2.com")
+URLS=("https://rui-qiu.com" "https://ergonomicchaircentral.com" "https://your-site-2.com")
 for u in "${URLS[@]}"; do
   echo "$u"
 done
