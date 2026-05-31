@@ -22,4 +22,4 @@ docker run -d --name node_exporter --restart unless-stopped -p 9100:9100 -v /:/h
 
 docker run -d --name cadvisor --restart unless-stopped -p 8080:8080 --volume=/:/rootfs:ro --volume=/var/run:/var/run:ro --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --device=/dev/kmsg gcr.io/cadvisor/cadvisor:latest
 
-echo "Node exporter on :9100, cAdvisor on :8080"
+echo "Open 9100 ONLY from your Prometheus server IP, not to the whole internet."
