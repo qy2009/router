@@ -1,0 +1,6 @@
+- targets:
+  - https://example.com
+  - https://example.org
+  labels:
+    job: website
+    group: web
