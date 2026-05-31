@@ -10,6 +10,8 @@ PROMETHEUS_IMAGE="prom/prometheus:v3.5.0"
 GRAFANA_IMAGE="grafana/grafana-oss:latest"
 ALERTMANAGER_IMAGE="prom/alertmanager:v0.28.0"
 BLACKBOX_IMAGE="prom/blackbox-exporter:v0.27.0"
+PROM_UID="65534"
+PROM_GID="65534"
 
 install_docker_if_missing() {
   if command -v docker >/dev/null 2>&1; then return; fi
@@ -25,10 +27,21 @@ install_docker_if_missing() {
 }
 
 install_docker_if_missing
-sudo mkdir -p "$MONITOR_DATA_DIR"/prometheus "$MONITOR_DATA_DIR"/grafana "$MONITOR_DATA_DIR"/alertmanager "$MONITOR_DATA_DIR"/blackbox "$MONITOR_DATA_DIR"/targets "$MONITOR_DATA_DIR"/rules
-sudo chown -R $(id -u):$(id -g) "$MONITOR_DATA_DIR"
 
-cat > "$MONITOR_DATA_DIR/prometheus/prometheus.yml" <<'YAML'
+sudo mkdir -p \
+  "$MONITOR_DATA_DIR/prometheus/config" \
+  "$MONITOR_DATA_DIR/prometheus/data" \
+  "$MONITOR_DATA_DIR/grafana" \
+  "$MONITOR_DATA_DIR/alertmanager" \
+  "$MONITOR_DATA_DIR/blackbox" \
+  "$MONITOR_DATA_DIR/targets" \
+  "$MONITOR_DATA_DIR/rules"
+
+sudo chown -R $(id -u):$(id -g) "$MONITOR_DATA_DIR"
+sudo chown -R ${PROM_UID}:${PROM_GID} "$MONITOR_DATA_DIR/prometheus/data"
+sudo chmod 775 "$MONITOR_DATA_DIR/prometheus/data"
+
+cat > "$MONITOR_DATA_DIR/prometheus/config/prometheus.yml" <<'YAML'
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -129,14 +142,35 @@ YAML
 
 docker rm -f prometheus grafana alertmanager blackbox >/dev/null 2>&1 || true
 
-docker run -d --name blackbox --restart unless-stopped -p 9115:9115 -v "$MONITOR_DATA_DIR/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro" $BLACKBOX_IMAGE --config.file=/etc/blackbox_exporter/config.yml
+docker run -d --name blackbox --restart unless-stopped \
+  -p 9115:9115 \
+  -v "$MONITOR_DATA_DIR/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro" \
+  $BLACKBOX_IMAGE --config.file=/etc/blackbox_exporter/config.yml
 
-docker run -d --name alertmanager --restart unless-stopped -p 9093:9093 -v "$MONITOR_DATA_DIR/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro" $ALERTMANAGER_IMAGE --config.file=/etc/alertmanager/alertmanager.yml
+docker run -d --name alertmanager --restart unless-stopped \
+  -p 9093:9093 \
+  -v "$MONITOR_DATA_DIR/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro" \
+  $ALERTMANAGER_IMAGE --config.file=/etc/alertmanager/alertmanager.yml
 
-docker run -d --name prometheus --restart unless-stopped -p 9090:9090 -v "$MONITOR_DATA_DIR/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro" -v "$MONITOR_DATA_DIR/targets:/etc/prometheus/targets:ro" -v "$MONITOR_DATA_DIR/rules:/etc/prometheus/rules:ro" -v "$MONITOR_DATA_DIR/prometheus:/prometheus" $PROMETHEUS_IMAGE --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus
+docker run -d --name prometheus --restart unless-stopped \
+  --user ${PROM_UID}:${PROM_GID} \
+  -p 9090:9090 \
+  -v "$MONITOR_DATA_DIR/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
+  -v "$MONITOR_DATA_DIR/targets:/etc/prometheus/targets:ro" \
+  -v "$MONITOR_DATA_DIR/rules:/etc/prometheus/rules:ro" \
+  -v "$MONITOR_DATA_DIR/prometheus/data:/prometheus" \
+  $PROMETHEUS_IMAGE \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/prometheus
 
-docker run -d --name grafana --restart unless-stopped -p 3000:3000 -v "$MONITOR_DATA_DIR/grafana:/var/lib/grafana" -e GF_SECURITY_ADMIN_USER=admin -e GF_SECURITY_ADMIN_PASSWORD=admin $GRAFANA_IMAGE
+docker run -d --name grafana --restart unless-stopped \
+  -p 3000:3000 \
+  -v "$MONITOR_DATA_DIR/grafana:/var/lib/grafana" \
+  -e GF_SECURITY_ADMIN_USER=admin \
+  -e GF_SECURITY_ADMIN_PASSWORD=admin \
+  $GRAFANA_IMAGE
 
 echo "Monitoring stack deployed."
 echo "Prometheus: http://SERVER_IP:$PROMETHEUS_PORT"
 echo "Grafana: http://SERVER_IP:$GRAFANA_PORT"
+echo "Prometheus data dir: $MONITOR_DATA_DIR/prometheus/data owned by ${PROM_UID}:${PROM_GID}"
