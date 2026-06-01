@@ -12,6 +12,8 @@ ALERTMANAGER_IMAGE="prom/alertmanager:v0.28.0"
 BLACKBOX_IMAGE="prom/blackbox-exporter:v0.27.0"
 PROM_UID="65534"
 PROM_GID="65534"
+GRAFANA_UID="472"
+GRAFANA_GID="0"
 
 install_docker_if_missing() {
   if command -v docker >/dev/null 2>&1; then return; fi
@@ -37,9 +39,11 @@ sudo mkdir -p \
   "$MONITOR_DATA_DIR/targets" \
   "$MONITOR_DATA_DIR/rules"
 
-sudo chown -R $(id -u):$(id -g) "$MONITOR_DATA_DIR"
+sudo chown -R "$(id -u)":"$(id -g)" "$MONITOR_DATA_DIR"
 sudo chown -R ${PROM_UID}:${PROM_GID} "$MONITOR_DATA_DIR/prometheus/data"
 sudo chmod 775 "$MONITOR_DATA_DIR/prometheus/data"
+sudo chown -R ${GRAFANA_UID}:${GRAFANA_GID} "$MONITOR_DATA_DIR/grafana"
+sudo chmod -R 775 "$MONITOR_DATA_DIR/grafana"
 
 cat > "$MONITOR_DATA_DIR/prometheus/config/prometheus.yml" <<'YAML'
 global:
@@ -174,3 +178,4 @@ echo "Monitoring stack deployed."
 echo "Prometheus: http://SERVER_IP:$PROMETHEUS_PORT"
 echo "Grafana: http://SERVER_IP:$GRAFANA_PORT"
 echo "Prometheus data dir: $MONITOR_DATA_DIR/prometheus/data owned by ${PROM_UID}:${PROM_GID}"
+echo "Grafana data dir: $MONITOR_DATA_DIR/grafana owned by ${GRAFANA_UID}:${GRAFANA_GID}"
