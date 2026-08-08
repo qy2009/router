@@ -1,0 +1,29 @@
+version: "3.8"
+
+# Unified backup status dashboard.
+# Deploy on Unraid (or any Docker host reachable by every backup job).
+# On Unraid you can alternatively just install "Uptime Kuma" from
+# Community Applications, which does the same thing with a GUI.
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./uptime-kuma-data:/app/data
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+# After it's up:
+#   1. Visit http://<host>:3001, create your admin account.
+#   2. Add a "Push" monitor per backup job (see Backup-Architecture.md
+#      for the full list) — each one gives you a unique push URL like
+#      http://<host>:3001/api/push/<token>?status=up&msg=OK&ping=<ms>
+#   3. Set the expected heartbeat interval a bit looser than the job's
+#      real schedule (daily job -> ~25h window) so a late run doesn't
+#      false-alarm.
+#   4. Wire up notifications (Settings -> Notifications) — email, ntfy,
+#      Telegram, Discord, etc.
+#   5. Optional: build a Status Page (top nav) to get a single public
+#      or private URL summarizing every job at a glance.

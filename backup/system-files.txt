@@ -1,0 +1,25 @@
+# /etc/backup-agent/system-files.txt
+#
+# Absolute paths backed up as-is, IN ADDITION to $DATA_DIR and $ROOT_DIR
+# (the latter already covers ~/.config/rclone/rclone.conf, since that's
+# under /root). Restic preserves the exact path, so `restic restore
+# --target /` puts every one of these back exactly where it came from —
+# no manual "which file goes where" step during recovery.
+#
+# One absolute path per line. # comments and blank lines are fine. Missing
+# paths are skipped with a note rather than failing the backup (useful
+# before you've configured ssmtp/fail2ban on a given box, etc).
+
+/etc/backup-agent.conf
+/etc/backup-agent/excludes.txt
+/etc/backup-agent/system-files.txt
+/etc/backup-agent/crontab_root.dump
+/etc/fail2ban/jail.d/sshd.local
+/etc/sysctl.d/99-bbr.conf
+/etc/ssh/sshd_config
+
+# Deliberately NOT listed: /etc/backup-agent/secrets.env and
+# /etc/ssmtp/ssmtp.conf — both live in secrets-bundle.tar.age instead
+# (see make-secrets-bundle.sh). A secrets file that's only ever backed up
+# into the repo it decrypts defeats the point. See RECOVERY.md,
+# "Bootstrapping access from nothing."

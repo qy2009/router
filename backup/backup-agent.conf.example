@@ -1,0 +1,16 @@
+# /etc/backup-agent.conf — per-VPS overrides for backup-agent.sh
+#
+# The script itself is identical on every VPS; only this small file
+# differs per host. Copy this to /etc/backup-agent.conf and edit.
+
+HOST_LABEL="phx-arm"                       # unique per VPS: Drive subfolder name,
+                                            # Pushover title, Kuma monitor label.
+                                            # Installer defaults this to $(hostname).
+GDRIVE_PATH="Backup_CloudVPS/${HOST_LABEL}" # usually fine as-is
+
+KUMA_PUSH_URL="http://<unraid-ip>:3001/api/push/<token-for-this-vps>"
+# Create the Push monitor in Uptime Kuma first (one per VPS), then paste
+# its unique URL here.
+
+# Uncomment to override the default weekly-tuned retention:
+# RETENTION="--keep-weekly 8 --keep-monthly 6 --keep-yearly 2"
