@@ -29,13 +29,21 @@ echo "============================================================"
 read -r -p "Proceed? [y/N] " CONFIRM
 [ "$CONFIRM" = "y" ] || { echo "Aborted. Re-run with a label: install-backup-agent.sh <host-label>"; exit 1; }
 
-echo "[+] Installing restic, rclone, docker..."
+echo "[+] Installing restic/rclone/curl (never touching an existing docker install)..."
 apt-get update -qq
-apt-get install -y restic docker.io curl
+command -v restic >/dev/null 2>&1 || apt-get install -y restic
+command -v curl >/dev/null 2>&1 || apt-get install -y curl
+if ! command -v docker >/dev/null 2>&1; then
+    apt-get install -y docker.io
+else
+    echo "    docker already present ($(docker --version)) — leaving it alone."
+fi
 restic self-update || true   # apt's restic is often behind; this is a no-op if already current
 
+# rclone: try apt first — more reliable than the rclone.org curl|bash installer
+# on some Oracle free-tier VPS networks (seen hanging on sjc-tool).
 if ! command -v rclone >/dev/null 2>&1; then
-    curl -s https://rclone.org/install.sh | bash
+    apt-get install -y rclone || curl -s https://rclone.org/install.sh | bash
 fi
 
 # ---- credential bootstrap: decrypt the age bundle if it's sitting here ----
@@ -106,7 +114,7 @@ if ! restic snapshots >/dev/null 2>&1; then
 fi
 
 echo "[+] Scheduling weekly cron (Sundays 03:00)..."
-( crontab -l 2>/dev/null | grep -v backup-agent.sh ; echo "0 3 * * 0 /usr/local/bin/backup-agent.sh" ) | crontab -
+( crontab -l 2>/dev/null | grep -v backup-agent.sh || true; echo "0 3 * * 0 /usr/local/bin/backup-agent.sh" ) | crontab -
 
 cat <<EOF
 

@@ -15,10 +15,21 @@
 set -e
 HOST_LABEL="${1:?Usage: restore-agent.sh <host-label>   (the DEAD VPS's label — the Drive folder to restore FROM, not this machine's hostname)}"
 
-echo "[+] Installing restic, rclone, docker..."
+echo "[+] Installing restic/rclone/curl (never touching an existing docker install)..."
 apt-get update -qq
-apt-get install -y restic docker.io docker-compose-plugin curl
-command -v rclone >/dev/null 2>&1 || curl -s https://rclone.org/install.sh | bash
+command -v restic >/dev/null 2>&1 || apt-get install -y restic
+command -v curl >/dev/null 2>&1 || apt-get install -y curl
+if ! command -v docker >/dev/null 2>&1; then
+    apt-get install -y docker.io docker-compose-plugin
+else
+    echo "    docker already present ($(docker --version)) — leaving the engine alone."
+    docker compose version >/dev/null 2>&1 || apt-get install -y docker-compose-plugin
+fi
+# apt first — more reliable than the rclone.org curl|bash installer on some
+# Oracle free-tier VPS networks (seen hanging on sjc-tool); curl is a fallback.
+if ! command -v rclone >/dev/null 2>&1; then
+    apt-get install -y rclone || curl -s https://rclone.org/install.sh | bash
+fi
 
 # ---- credential bootstrap: decrypt the age bundle if it's sitting here ----
 if [ -f secrets-bundle.tar.age ]; then
@@ -95,7 +106,7 @@ shopt -u nullglob
 echo "[+] Re-arming the weekly backup cron for this host..."
 if [ -f /root/backup-agent.sh ]; then
     install -m 700 /root/backup-agent.sh /usr/local/bin/backup-agent.sh
-    ( crontab -l 2>/dev/null | grep -v backup-agent.sh ; echo "0 3 * * 0 /usr/local/bin/backup-agent.sh" ) | crontab -
+    ( crontab -l 2>/dev/null | grep -v backup-agent.sh || true; echo "0 3 * * 0 /usr/local/bin/backup-agent.sh" ) | crontab -
 else
     echo "    (backup-agent.sh not found alongside this script — copy it over and"
     echo "     re-run install-backup-agent.sh ${HOST_LABEL} to re-arm the cron.)"
