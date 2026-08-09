@@ -56,6 +56,19 @@ systemctl restart lsws mariadb
 
 If MariaDB root has a real password by the time you're restoring, source it from `MYSQL_PASSWORD` in the restored `secrets.env` and pass `-p"$MYSQL_PASSWORD"` to the `mysql` import above. Verify the site loads and the DB looks current (check a recent post/order/whatever's easy to eyeball) before repointing DNS.
 
+## 1c. Restoring a WordPress VPS onto a BARE box (droplet destroyed, starting from nothing)
+
+1b above assumes OpenLiteSpeed/MariaDB are already installed and you're just restoring data. If the whole droplet is gone, use `restore-agent-wordpress.sh` instead:
+
+```bash
+git clone https://github.com/qy2009/router.git && cd router/backup
+bash restore-agent-wordpress.sh xblog      # the DEAD VPS's host label
+```
+
+It detects there's no OpenLiteSpeed installed, runs `ols1clk.sh` (LiteSpeed's official installer) to lay down OLS + PHP + MariaDB fresh, then does the same restic-restore + DB-import as 1b on top of it — the fresh WordPress install and database ols1clk creates get completely overwritten, so its own values don't need to match the original site.
+
+This needs a few fields the pure-restore path doesn't: `WP_DOMAIN`, `WP_EMAIL`, `WP_DB_NAME`, `WP_DB_USER` in `/etc/backup-agent.conf`, and `OLS_ADMIN_USER`, `OLS_ADMIN_PASSWORD`, `WP_DB_PASSWORD` in `secrets.env` — both get seeded with `CHANGE_ME` placeholders by `install-backup-agent-wordpress.sh`. Fill those in ahead of time (or note them somewhere in your password manager) rather than discovering they're missing mid-disaster.
+
 ## 2. Restoring a VPS (Duplicati)
 
 1. Same VPS provisioning as above.

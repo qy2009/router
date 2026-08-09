@@ -102,6 +102,14 @@ PUSHOVER_USER="CHANGE_ME"
 PUSHOVER_TOKEN="CHANGE_ME"
 # Only needed if you later lock down MariaDB root with a real password:
 # MYSQL_PASSWORD="CHANGE_ME"
+
+# Only read by restore-agent-wordpress.sh, and only when restoring onto a
+# BARE box with no OpenLiteSpeed installed yet (ols1clk.sh needs something
+# to set up non-interactively -- these get overwritten by the real restore
+# immediately after, so they don't need to match anything, just be set).
+OLS_ADMIN_USER="CHANGE_ME"
+OLS_ADMIN_PASSWORD="CHANGE_ME"
+WP_DB_PASSWORD="CHANGE_ME"
 EOF
     chmod 600 /etc/backup-agent/secrets.env
     echo "[!] Edit /etc/backup-agent/secrets.env with real values before the first run."
@@ -115,6 +123,14 @@ HOST_LABEL="${HOST_LABEL}"
 RCLONE_REMOTE="oracle"
 RCLONE_PATH="${RCLONE_PATH}"
 KUMA_PUSH_URL=""
+
+# Only read by restore-agent-wordpress.sh, and only when restoring onto a
+# bare box (see the matching note in secrets.env). Not secret -- just the
+# site's real domain/email/DB name so ols1clk.sh has something to run with.
+WP_DOMAIN="CHANGE_ME"
+WP_EMAIL="CHANGE_ME"
+WP_DB_NAME="CHANGE_ME"
+WP_DB_USER="CHANGE_ME"
 EOF
     echo "[!] Edit /etc/backup-agent.conf and set KUMA_PUSH_URL once you've"
     echo "    created this VPS's Push monitor in Uptime Kuma."
