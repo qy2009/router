@@ -4,8 +4,9 @@
 #
 # Prereq: rclone remote already configured (same rclone.conf you copy to
 # every VPS). Usage:
-#   bash install-gdrive-mount.sh            # mounts remote "gdrive" at /gdrive
-#   bash install-gdrive-mount.sh mydrive    # different remote name
+#   bash install-gdrive-mount.sh                    # mounts remote "gdrive" at /gdrive
+#   bash install-gdrive-mount.sh mydrive             # different remote name
+#   bash install-gdrive-mount.sh gdrive /gdrivex     # different mountpoint too
 #
 # Manage afterwards:
 #   systemctl status rclone-gdrive     # is it mounted?
@@ -14,7 +15,8 @@
 
 set -e
 REMOTE="${1:-gdrive}"
-MOUNTPOINT="/gdrive"
+MOUNTPOINT="${2:-/gdrive}"
+CACHE_DIR="/var/cache/rclone-gdrive"
 
 [ "$EUID" -eq 0 ] || { echo "Run as root."; exit 1; }
 
@@ -32,7 +34,7 @@ rclone listremotes | grep -q "^${REMOTE}:" || {
 # Needed for --allow-other (so non-root processes/containers can read the mount)
 grep -q '^user_allow_other' /etc/fuse.conf || echo 'user_allow_other' >> /etc/fuse.conf
 
-mkdir -p "$MOUNTPOINT"
+mkdir -p "$MOUNTPOINT" "$CACHE_DIR"
 
 echo "[+] Creating systemd unit..."
 cat > /etc/systemd/system/rclone-gdrive.service <<EOF
@@ -45,9 +47,10 @@ After=network-online.target
 Type=notify
 ExecStart=/usr/bin/rclone mount ${REMOTE}: ${MOUNTPOINT} \\
   --allow-other \\
-  --vfs-cache-mode writes \\
-  --vfs-cache-max-size 1G \\
-  --vfs-cache-max-age 12h \\
+  --vfs-cache-mode full \\
+  --vfs-cache-max-size 20G \\
+  --vfs-cache-max-age 24h \\
+  --cache-dir ${CACHE_DIR} \\
   --dir-cache-time 30m \\
   --poll-interval 1m \\
   --umask 022 \\
@@ -60,11 +63,17 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-# --vfs-cache-mode writes: buffers writes locally before upload — needed
-#   for apps that expect normal file semantics (seek-on-write etc). Cache
-#   capped at 1G on purpose: your free-tier VPS disks are small.
-# NOT using --vfs-cache-mode full: it caches reads too and can quietly eat
-#   the disk on a 47GB boot volume.
+# --vfs-cache-mode full: caches reads as well as writes, so re-watching /
+#   scrubbing the same media (Plex etc.) doesn't re-download from Drive
+#   every time. Capped at 20G with a 24h max-age so it can't run away on
+#   disk -- sized for VPS with 100G+ boot volumes; shrink this on smaller
+#   boxes (the old default was 1G/writes-only, safe on tiny disks but no
+#   read caching).
+# --cache-dir is pinned OUTSIDE /root and /data on purpose: backup-agent.sh
+#   scans those two paths, and this cache is pure re-downloadable Drive
+#   content, not something worth backing up (learned this the hard way from
+#   google-drive-ocamlfuse, whose default cache under ~/.gdfuse ballooned
+#   to 11G and got swept into a snapshot before anyone noticed).
 
 systemctl daemon-reload
 systemctl enable --now rclone-gdrive
@@ -77,11 +86,12 @@ else
     echo "[!] Mount not ready yet — check: systemctl status rclone-gdrive"
 fi
 
-cat <<'EOF'
+cat <<EOF
 
-NOTE for backup-agent.sh hosts: /gdrive is a window onto the SAME Google
-Drive the backups go to — do not point the backup at /gdrive (it would
-back Drive up into itself) and keep /gdrive out of $DATA_DIR. The default
-excludes already avoid this as long as /gdrive stays at the filesystem
-root, outside /data and /root.
+NOTE for backup-agent.sh hosts: ${MOUNTPOINT} is a window onto the SAME
+Google Drive the backups go to -- do not point the backup at ${MOUNTPOINT}
+(it would back Drive up into itself) and keep it out of \$DATA_DIR. The
+default excludes already avoid this as long as ${MOUNTPOINT} stays outside
+/data and /root. The VFS cache at ${CACHE_DIR} is outside both too, so it
+never needs an explicit exclude entry.
 EOF

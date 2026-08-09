@@ -71,7 +71,13 @@ fi
 
 echo "[+] Laying down config/secrets skeleton..."
 mkdir -p /etc/backup-agent
-touch /etc/backup-agent/excludes.txt
+if [ ! -f /etc/backup-agent/excludes.txt ]; then
+    cat > /etc/backup-agent/excludes.txt << 'EOF'
+# Redundant with the separate GitHub backup leg -- this clone is already
+# versioned on GitHub, no need to re-back-it-up from every VPS every week.
+/root/router
+EOF
+fi
 chmod 700 /etc/backup-agent
 
 if [ -f system-files.txt ] && [ ! -f /etc/backup-agent/system-files.txt ]; then
