@@ -14,9 +14,14 @@
 # Run on a FRESH VPS that already has your vps-setup.sh hardening applied.
 # Needs secrets-bundle.tar.age (rclone.conf + secrets.env + ssmtp.conf,
 # see make-secrets-bundle.sh) sitting next to this script -- one passphrase
-# unlocks all three. secrets.env must also carry OLS_ADMIN_PASSWORD and
-# WP_DB_PASSWORD (see install-backup-agent-wordpress.sh's template) so this
-# script never has to prompt for or hardcode a password.
+# unlocks all three.
+#
+# On a bare-box restore (no OpenLiteSpeed installed yet), the OLS admin
+# panel password and ols1clk's scratch DB password are randomly generated
+# right here at restore time and printed once at the end -- nothing to set
+# up in secrets.env ahead of time, and nothing sensitive sitting in the repo
+# or the bundle. Save the printed admin password when you see it; it isn't
+# shown again.
 #
 # Usage:
 #   git clone https://github.com/qy2009/router.git && cd router/backup
@@ -75,22 +80,27 @@ echo "[+] Snapshots available for ${HOST_LABEL}:"
 restic snapshots
 
 # ---- install the web stack from scratch if it isn't already here ----
+BARE_BOX_INSTALL=0
 if command -v /usr/local/lsws/bin/lswsctrl >/dev/null 2>&1; then
     echo "[+] OpenLiteSpeed already present — leaving the install alone, will just restore data over it."
 else
+    BARE_BOX_INSTALL=1
     echo "[+] No OpenLiteSpeed found — installing via ols1clk.sh (LiteSpeed's official installer)."
     : "${WP_DOMAIN:?Set WP_DOMAIN in /etc/backup-agent.conf (the site's real domain) before restoring to a bare box}"
     : "${WP_EMAIL:?Set WP_EMAIL in /etc/backup-agent.conf before restoring to a bare box}"
-    : "${OLS_ADMIN_USER:?Set OLS_ADMIN_USER in secrets.env before restoring to a bare box}"
-    : "${OLS_ADMIN_PASSWORD:?Set OLS_ADMIN_PASSWORD in secrets.env before restoring to a bare box}"
     : "${WP_DB_NAME:?Set WP_DB_NAME in /etc/backup-agent.conf before restoring to a bare box}"
     : "${WP_DB_USER:?Set WP_DB_USER in /etc/backup-agent.conf before restoring to a bare box}"
-    : "${WP_DB_PASSWORD:?Set WP_DB_PASSWORD in secrets.env before restoring to a bare box}"
-    # These wordpress-specific values only matter for getting ols1clk through
-    # its non-interactive setup -- the restic restore + DB import below
-    # completely overwrite whatever WordPress install and database this step
-    # creates, so they don't need to match the ORIGINAL site's values, just
-    # be present and valid.
+    OLS_ADMIN_USER="${OLS_ADMIN_USER:-admin}"
+    # Randomly generated right here, not stored anywhere ahead of time:
+    #   - OLS_ADMIN_PASSWORD becomes the real login for the OLS admin panel
+    #     (port 7080) going forward -- printed once at the end, save it then.
+    #   - WP_DB_PASSWORD is pure scratch: ols1clk needs *some* password to
+    #     get through its non-interactive setup, but --all-databases in the
+    #     backup includes the mysql system database, so importing the dump
+    #     below overwrites mysql.user (and therefore this password) with
+    #     whatever the original site actually had. Never shown, never matters.
+    OLS_ADMIN_PASSWORD=$(openssl rand -base64 18)
+    WP_DB_PASSWORD=$(openssl rand -base64 18)
     OLSTAGE=$(mktemp -d)
     curl -o "$OLSTAGE/ols1clk.sh" https://raw.githubusercontent.com/litespeedtech/ols1clk/master/ols1clk.sh
     bash "$OLSTAGE/ols1clk.sh" \
@@ -167,9 +177,20 @@ cat <<EOF
     - Load the site in a browser, check a recent post/page is there
     - systemctl status lsws mariadb
     - crontab -l                           (backup schedule back?)
-    - The OLS admin panel (https://<ip>:7080) logs in with OLS_ADMIN_USER
-      / OLS_ADMIN_PASSWORD from secrets.env, IF this was a bare-box install
+EOF
 
+if [ "$BARE_BOX_INSTALL" -eq 1 ]; then
+    cat <<EOF
+  This was a bare-box install -- OLS admin panel (https://<ip>:7080):
+    user:     ${OLS_ADMIN_USER}
+    password: ${OLS_ADMIN_PASSWORD}
+  SAVE THIS NOW. It's generated fresh each time and not stored anywhere --
+  this is the only time it's shown.
+EOF
+fi
+
+cat <<EOF
+============================================================
   Then re-point DNS/whatever pointed at the old VPS's IP.
 ============================================================
 EOF

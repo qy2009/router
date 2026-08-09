@@ -67,7 +67,7 @@ bash restore-agent-wordpress.sh xblog      # the DEAD VPS's host label
 
 It detects there's no OpenLiteSpeed installed, runs `ols1clk.sh` (LiteSpeed's official installer) to lay down OLS + PHP + MariaDB fresh, then does the same restic-restore + DB-import as 1b on top of it — the fresh WordPress install and database ols1clk creates get completely overwritten, so its own values don't need to match the original site.
 
-This needs a few fields the pure-restore path doesn't: `WP_DOMAIN`, `WP_EMAIL`, `WP_DB_NAME`, `WP_DB_USER` in `/etc/backup-agent.conf`, and `OLS_ADMIN_USER`, `OLS_ADMIN_PASSWORD`, `WP_DB_PASSWORD` in `secrets.env` — both get seeded with `CHANGE_ME` placeholders by `install-backup-agent-wordpress.sh`. Fill those in ahead of time (or note them somewhere in your password manager) rather than discovering they're missing mid-disaster.
+This needs a few fields the pure-restore path doesn't: `WP_DOMAIN`, `WP_EMAIL`, `WP_DB_NAME`, `WP_DB_USER` in `/etc/backup-agent.conf` (not secret, seeded with `CHANGE_ME` placeholders by `install-backup-agent-wordpress.sh` — fill those in ahead of time). The OLS admin panel password and ols1clk's scratch DB password are **not** stored anywhere ahead of time — the script generates them randomly at restore time and prints the admin password once at the end. Save it when you see it; it's not shown again and not persisted.
 
 ## 2. Restoring a VPS (Duplicati)
 
