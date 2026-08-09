@@ -45,7 +45,7 @@ Same restic mechanics as above, different target layout since there's no `docker
 
 ```bash
 source /etc/backup-agent/secrets.env
-export RESTIC_REPOSITORY="rclone:oci:Backup_CloudVPS/<host-label>"
+export RESTIC_REPOSITORY="rclone:oracle:vps-backups/Backup_CloudVPS/<host-label>"
 restic snapshots
 restic restore latest --target /                 # puts /var/www and the lsws vhost confs back in place
 mysql -u root < /var/backups/mysql-dumps/all-databases.sql   # restores every DB from the dump restic just restored

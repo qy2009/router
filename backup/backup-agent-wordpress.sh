@@ -12,9 +12,10 @@
 #                     alongside the web root and the OpenLiteSpeed vhost
 #                     configs.
 #
-# Backend is deliberately NOT gdrive here — see RCLONE_REMOTE below. Point
-# it at whatever rclone remote you've configured (Oracle Object Storage,
-# in the first deployment of this script).
+# Backend is deliberately NOT gdrive here — see RCLONE_REMOTE below. This
+# reuses the SAME "oracle" rclone remote (Oracle Object Storage, S3-compat)
+# that's already in the shared secrets-bundle.tar.age rclone.conf — no new
+# credentials needed, just a dedicated bucket for this leg.
 #
 # Deploy via install-backup-agent-wordpress.sh, which drops this file at
 # /usr/local/bin/backup-agent.sh — same install path as every other host,
@@ -41,9 +42,11 @@ DUMP_DIR="/var/backups/mysql-dumps"
 LOGFILE="/var/log/backup-agent.log"
 EXCLUDE_FILE="/etc/backup-agent/excludes.txt"
 SECRETS_FILE="/etc/backup-agent/secrets.env"
-RCLONE_REMOTE="oci"          # rclone remote name. Docker fleet uses "gdrive";
-                              # this host backs up to Oracle Object Storage.
-RCLONE_PATH=""                # defaults to Backup_CloudVPS/<hostname>
+RCLONE_REMOTE="oracle"        # rclone remote name. Docker fleet uses "gdrive";
+                              # this host backs up to Oracle Object Storage,
+                              # reusing the "oracle" remote already in the
+                              # shared rclone.conf (see secrets-bundle.tar.age).
+RCLONE_PATH=""                 # defaults to vps-backups/Backup_CloudVPS/<hostname>
 UPLOAD_LOG=true               # copy the log to the remote after each run
 RETENTION="--keep-weekly 8 --keep-monthly 6 --keep-yearly 2"
 KUMA_PUSH_URL=""
@@ -58,7 +61,7 @@ CONF="/etc/backup-agent.conf"
 [ -f "$CONF" ] && source "$CONF"
 
 if [ -z "$RCLONE_PATH" ]; then
-    RCLONE_PATH="Backup_CloudVPS/${HOST_LABEL}"
+    RCLONE_PATH="vps-backups/Backup_CloudVPS/${HOST_LABEL}"
 fi
 export RESTIC_REPOSITORY="rclone:${RCLONE_REMOTE}:${RCLONE_PATH}"
 

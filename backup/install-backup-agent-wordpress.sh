@@ -3,25 +3,26 @@
 # OpenLiteSpeed + WordPress + MariaDB VPS. Sibling to install-backup-agent.sh
 # (the Docker-fleet installer) — same secrets-bundle bootstrap, same cron
 # pattern, but installs backup-agent-wordpress.sh instead, and the backend
-# is Oracle Object Storage rather than Google Drive (see the "oci" remote
-# check below).
+# is the "oracle" rclone remote (Oracle Object Storage, S3-compatible) that
+# already lives in the shared rclone.conf — no new credentials to set up,
+# just a dedicated bucket (created below if it doesn't exist yet).
 #
 # Usage, on the WordPress VPS:
 #   git clone https://github.com/qy2009/router.git && cd router/backup
 #   bash install-backup-agent-wordpress.sh
 #   # -> prompts for the age passphrase to unlock secrets-bundle.tar.age
 #   #    (same bundle/passphrase as the rest of the fleet: rclone.conf,
-#   #    secrets.env, ssmtp.conf). If the bundle's rclone.conf doesn't have
-#   #    an "oci" remote yet, this script tells you how to add one.
+#   #    secrets.env, ssmtp.conf — rclone.conf already has "oracle" in it).
 
 set -e
 HOST_LABEL="${1:-$(hostname)}"
-RCLONE_PATH="Backup_CloudVPS/${HOST_LABEL}"
+RCLONE_BUCKET="vps-backups"
+RCLONE_PATH="${RCLONE_BUCKET}/Backup_CloudVPS/${HOST_LABEL}"
 
 echo "============================================================"
 echo "  WordPress backup agent will be configured as:"
 echo "    Host label:      ${HOST_LABEL}"
-echo "    Backend folder:  oci:${RCLONE_PATH}"
+echo "    Backend folder:  oracle:${RCLONE_PATH}"
 echo "    Schedule:        weekly, Sundays 03:00"
 echo "============================================================"
 read -r -p "Proceed? [y/N] " CONFIRM
@@ -40,9 +41,8 @@ fi
 
 # ---- credential bootstrap: decrypt the age bundle if it's sitting here ----
 # Same bundle as the Docker fleet -- it carries RESTIC_PASSWORD, Pushover
-# creds, and ssmtp.conf, which are backend-agnostic. Its rclone.conf also
-# has the gdrive remote in it (harmless here, just unused) but likely NOT
-# an "oci" remote yet -- see the check further down.
+# creds, ssmtp.conf, AND rclone.conf with the "oracle" remote already in it
+# (gdrive is in there too, harmless here, just unused).
 if [ -f secrets-bundle.tar.age ]; then
     command -v age >/dev/null 2>&1 || apt-get install -y age >/dev/null
     echo "[+] Found secrets-bundle.tar.age — decrypting (rclone.conf, secrets.env, ssmtp.conf)."
@@ -65,31 +65,17 @@ if [ ! -f /root/.config/rclone/rclone.conf ]; then
     exit 1
 fi
 
-# ---- the one piece the bundle can't carry yet: the "oci" remote ----
-if ! rclone listremotes --config /root/.config/rclone/rclone.conf 2>/dev/null | grep -q '^oci:'; then
-    cat <<'EOF'
-
-[!] No "oci" remote found in rclone.conf yet. Add one before the first
-    real backup run. Simplest path -- Oracle Object Storage's S3-compatible
-    API via Customer Secret Keys (OCI Console -> Identity & Security ->
-    Users -> your user -> Customer Secret Keys -> Generate Secret Key):
-
-      rclone config create oci s3 \
-        provider=Other \
-        access_key_id=<your access key> \
-        secret_access_key=<your secret key> \
-        endpoint=<namespace>.compat.objectstorage.<region>.oraclecloud.com \
-        region=<region>
-
-    Then create the bucket if it doesn't exist yet:
-      rclone mkdir oci:<bucket-name>
-
-    And set RCLONE_PATH in /etc/backup-agent.conf to "<bucket-name>/Backup_CloudVPS/${HOST_LABEL}"
-    if the bucket name isn't itself the top-level path.
-
-    Re-run this script after that's done, or just fix rclone.conf by hand
-    and continue manually from "Laying down config/secrets skeleton" below.
-EOF
+# ---- confirm the "oracle" remote made it in, and the bucket exists ----
+if ! rclone listremotes --config /root/.config/rclone/rclone.conf 2>/dev/null | grep -q '^oracle:'; then
+    echo "[x] No 'oracle' remote in the decrypted rclone.conf. This script expects"
+    echo "    the shared secrets-bundle.tar.age (which already has one). If you're"
+    echo "    bootstrapping from a hand-copied rclone.conf instead, add an 'oracle'"
+    echo "    remote (S3-compatible, Oracle Object Storage) before continuing."
+    exit 1
+fi
+if ! rclone lsd "oracle:${RCLONE_BUCKET}" >/dev/null 2>&1; then
+    echo "[+] Bucket '${RCLONE_BUCKET}' doesn't exist yet on Oracle Object Storage — creating it."
+    rclone mkdir "oracle:${RCLONE_BUCKET}"
 fi
 
 echo "[+] Laying down config/secrets skeleton..."
@@ -126,7 +112,7 @@ fi
 if [ ! -f /etc/backup-agent.conf ]; then
     cat > /etc/backup-agent.conf <<EOF
 HOST_LABEL="${HOST_LABEL}"
-RCLONE_REMOTE="oci"
+RCLONE_REMOTE="oracle"
 RCLONE_PATH="${RCLONE_PATH}"
 KUMA_PUSH_URL=""
 EOF
@@ -141,15 +127,10 @@ echo "[+] Checking / initializing the restic repository..."
 source /etc/backup-agent.conf
 # shellcheck disable=SC1091
 source /etc/backup-agent/secrets.env
-export RESTIC_REPOSITORY="rclone:${RCLONE_REMOTE:-oci}:${RCLONE_PATH}"
-if rclone listremotes --config /root/.config/rclone/rclone.conf 2>/dev/null | grep -q '^oci:'; then
-    if ! restic snapshots >/dev/null 2>&1; then
-        echo "    No existing repo found at ${RESTIC_REPOSITORY} — initializing."
-        restic init
-    fi
-else
-    echo "    Skipping restic init — no oci remote yet (see instructions above)."
-    echo "    Re-run 'restic init' by hand once the remote is configured."
+export RESTIC_REPOSITORY="rclone:${RCLONE_REMOTE:-oracle}:${RCLONE_PATH}"
+if ! restic snapshots >/dev/null 2>&1; then
+    echo "    No existing repo found at ${RESTIC_REPOSITORY} — initializing."
+    restic init
 fi
 
 echo "[+] Scheduling weekly cron (Sundays 03:00)..."
@@ -161,10 +142,9 @@ cat <<EOF
   WordPress backup-agent installed: ${HOST_LABEL}
 ============================================================
   Before the first real run:
-    1. Confirm the "oci" rclone remote exists (see above if not).
-    2. /etc/backup-agent/secrets.env   — real RESTIC_PASSWORD / Pushover creds
-    3. /etc/backup-agent.conf          — KUMA_PUSH_URL for this VPS
-    4. /etc/backup-agent/excludes.txt  — anything you don't want backed up
+    1. /etc/backup-agent/secrets.env   — real RESTIC_PASSWORD / Pushover creds
+    2. /etc/backup-agent.conf          — KUMA_PUSH_URL for this VPS
+    3. /etc/backup-agent/excludes.txt  — anything you don't want backed up
 
   Test it now rather than waiting for Sunday:
     /usr/local/bin/backup-agent.sh
