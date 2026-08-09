@@ -28,10 +28,14 @@ exec 9>"$LOCKFILE"
 flock -n 9 || { echo "Sync already running — exiting."; exit 1; }
 
 # --backup-dir: anything rclone would overwrite or delete on the
-# destination gets moved here instead of destroyed, dated per run. Kept as
-# a sibling of $DST (not nested inside it) so it never gets swept up by a
-# later sync pass.
-BACKUP_DIR="/mnt/user/data-versions-X/$(date +%F)"
+# destination gets moved here instead of destroyed, dated per run. This
+# job mirrors ALL of $DST (no --include filter), so unlike
+# gdrive-to-unraid.sh the versions folder MUST stay a sibling of $DST, not
+# nested inside it -- otherwise each run would see last run's versions
+# folder as "not in source" and re-backup-dir it into itself, nesting
+# forever. Still lives under the shared ZZ-Versions root, just in its own
+# X/ subfolder alongside (not inside) the X data.
+BACKUP_DIR="/mnt/user/data/ZZ-Versions/X/$(date +%F)"
 
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)

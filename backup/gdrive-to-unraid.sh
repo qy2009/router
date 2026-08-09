@@ -44,11 +44,12 @@ for f in "${FOLDERS[@]}"; do
 done
 
 # --backup-dir: anything rclone would overwrite or delete on the
-# destination gets moved here instead of destroyed, dated per run. Kept as
-# a sibling of $DST (not nested inside it) so it never gets swept up by a
-# later sync pass. This is what makes "sync" safe here -- a bad delete or
-# unexpected change on the Drive side can't silently wipe the local copy.
-BACKUP_DIR="/mnt/user/data-versions/$(date +%F)"
+# destination gets moved here instead of destroyed, dated per run. Lives
+# under ZZ-Versions (sorts to the bottom of the share) rather than being
+# deleted -- safe to nest inside $DST here because the --include list
+# above only ever touches All/, Android/, Backup_Blog/, Backup_CloudVPS/,
+# ID/, so this sync never looks at ZZ-Versions and can't sweep it up.
+BACKUP_DIR="/mnt/user/data/ZZ-Versions/$(date +%F)"
 
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)
