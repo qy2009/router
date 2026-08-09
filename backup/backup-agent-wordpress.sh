@@ -148,8 +148,12 @@ if [ "$BACKUP_OK" -eq 1 ]; then
 fi
 
 # ---- publish log to the remote (best-effort) ----
+# NOTE: unlike gdrive, this is an S3-compatible remote -- the first path
+# segment is the BUCKET, so this has to include it explicitly rather than
+# hardcoding "Backup_CloudVPS/..." the way the Docker fleet's script does.
 if [ "$UPLOAD_LOG" = "true" ]; then
-    rclone copyto "$LOGFILE" "${RCLONE_REMOTE}:Backup_CloudVPS/_logs/${HOST_LABEL}.log" 2>/dev/null || true
+    LOG_BUCKET="${RCLONE_PATH%%/*}"
+    rclone copyto "$LOGFILE" "${RCLONE_REMOTE}:${LOG_BUCKET}/Backup_CloudVPS/_logs/${HOST_LABEL}.log" 2>/dev/null || true
 fi
 
 # ---- report ----
