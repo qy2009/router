@@ -16,7 +16,7 @@ SRC="gdrive:"
 DST="onedrive:"
 RCLONE_CONFIG="/root/.config/rclone/rclone.conf"
 LOGFILE="/var/log/gdrive-to-onedrive.log"
-KUMA_PUSH_URL=""   # from Uptime Kuma, monitor: gdrive-to-onedrive
+KUMA_PUSH_URL="http://100.111.111.117:3001/api/push/exHuCHPJ6g"   # Kuma monitor: gdrive-to-onedrive (Tailscale IP -- must be reachable from every VPS, not the public dashboard URL)
 LOCKFILE="/var/run/gdrive-to-onedrive.lock"
 
 # Top-level Drive folders to sync -- add/remove here, not the whole Drive
