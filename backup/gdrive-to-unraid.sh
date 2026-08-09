@@ -45,11 +45,9 @@ done
 
 # --backup-dir: anything rclone would overwrite or delete on the
 # destination gets moved here instead of destroyed, dated per run. Lives
-# under ZZ-Versions (sorts to the bottom of the share) rather than being
-# deleted -- safe to nest inside $DST here because the --include list
-# above only ever touches All/, Android/, Backup_Blog/, Backup_CloudVPS/,
-# ID/, so this sync never looks at ZZ-Versions and can't sweep it up.
-BACKUP_DIR="/mnt/user/data/ZZ-Versions/$(date +%F)"
+# on the mylogs share -- entirely outside $DST -- so it's never in scope
+# for this sync (or any future one) and can't get swept up or re-synced.
+BACKUP_DIR="/mnt/user/mylogs/ZZ-Versions/$(date +%F)"
 
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)
