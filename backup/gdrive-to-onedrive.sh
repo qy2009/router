@@ -47,12 +47,18 @@ BACKUP_DIR="${DST}_sync-versions/$(date +%F)"
 mkdir -p "$(dirname "$LOGFILE")"
 START_EPOCH=$(date +%s)
 
+# --drive-acknowledge-abuse: a handful of files on this Drive account get
+# flagged by Google's automated scanner as "malware or spam" (mostly old
+# cracked installers/APKs) and 403 without this flag. Without it the whole
+# sync fails every run on the same ~12 files. Ray owns these files and
+# wants them backed up regardless.
 rclone sync "$SRC" "$DST" \
   "${INCLUDE_ARGS[@]}" \
   --backup-dir "$BACKUP_DIR" \
   --config "$RCLONE_CONFIG" \
   --log-file "$LOGFILE" --log-level INFO \
   --transfers 8 --checkers 16 \
+  --drive-acknowledge-abuse \
   --contimeout 60s --timeout 300s --retries 3 \
   --stats 1m
 

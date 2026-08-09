@@ -7,8 +7,11 @@
 # rather than a hand-picked folder list, since Ray wants everything on
 # this account synced. Runs on rui-server (10.0.0.2) itself via cron.
 #
-# Deploy: crontab entry below installs this to run once a week.
-#   30 3 * * 0 /root/router/backup/gdriveX-to-unraid.sh
+# Deploy: registered via the Unraid User Scripts plugin (not raw crontab
+# -- that gets wiped on reboot/array events on Unraid), custom schedule.
+# Runs Sunday 1:30am, 30 min after gdrive-to-unraid.sh, well clear of
+# gdrive-to-onedrive.sh's daily 4:00am run on zrh-tool.
+#   30 1 * * 0 /root/router/backup/gdriveX-to-unraid.sh
 
 set -uo pipefail
 

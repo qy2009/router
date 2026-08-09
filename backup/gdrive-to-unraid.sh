@@ -7,8 +7,12 @@
 # hand-picked set of top-level folders (via --include), not the entire
 # Drive root. Runs on rui-server (10.0.0.2) itself via cron.
 #
-# Deploy: crontab entry below installs this to run once a week.
-#   0 3 * * 0 /root/router/backup/gdrive-to-unraid.sh
+# Deploy: registered via the Unraid User Scripts plugin (not raw crontab
+# -- that gets wiped on reboot/array events on Unraid), custom schedule.
+# Runs Sunday 1:00am, 30 min before gdriveX-to-unraid.sh and 3 hours
+# before gdrive-to-onedrive.sh's daily 4:00am run on zrh-tool, so the two
+# never overlap.
+#   0 1 * * 0 /root/router/backup/gdrive-to-unraid.sh
 
 set -uo pipefail
 
@@ -49,12 +53,18 @@ BACKUP_DIR="/mnt/user/data-versions/$(date +%F)"
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)
 
+# --drive-acknowledge-abuse: a handful of files on this Drive account get
+# flagged by Google's automated scanner as "malware or spam" (mostly old
+# cracked installers/APKs) and 403 without this flag -- same files that
+# broke gdrive-to-onedrive.sh. Ray owns these files and wants them backed
+# up regardless.
 rclone sync "$SRC" "$DST" \
   "${INCLUDE_ARGS[@]}" \
   --backup-dir "$BACKUP_DIR" \
   --config "$RCLONE_CONFIG" \
   --log-file "$LOGFILE" --log-level INFO \
   --transfers 8 --checkers 16 \
+  --drive-acknowledge-abuse \
   --contimeout 60s --timeout 300s --retries 3 \
   --stats 1m
 
