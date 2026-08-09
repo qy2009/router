@@ -34,7 +34,7 @@ flock -n 9 || { echo "Sync already running — exiting."; exit 1; }
 # run would find last run's versions folder "not in source" and
 # re-backup-dir it into itself, nesting forever. The mylogs share is
 # outside /mnt/user/data entirely, so that's a non-issue here.
-BACKUP_DIR="/mnt/user/mylogs/ZZ-Versions/X/$(date +%F)"
+BACKUP_DIR="/mnt/user/mylogs/X/$(date +%F)"
 
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)

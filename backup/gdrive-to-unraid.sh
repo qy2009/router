@@ -47,7 +47,7 @@ done
 # destination gets moved here instead of destroyed, dated per run. Lives
 # on the mylogs share -- entirely outside $DST -- so it's never in scope
 # for this sync (or any future one) and can't get swept up or re-synced.
-BACKUP_DIR="/mnt/user/mylogs/ZZ-Versions/$(date +%F)"
+BACKUP_DIR="/mnt/user/mylogs/$(date +%F)"
 
 mkdir -p "$(dirname "$LOGFILE")" "$DST"
 START_EPOCH=$(date +%s)
