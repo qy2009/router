@@ -38,6 +38,9 @@ flock -n 9 || { echo "Backup already running — exiting."; exit 1; }
 HOST_LABEL="$(hostname)"
 WEBROOT="/var/www"
 LSWS_CONF_DIR="/usr/local/lsws/conf/vhosts"
+ACME_DIR="/root/.acme.sh"     # acme.sh's issued certs + account key (ols1clk sets
+                               # this up with a renewal cron job) -- losing this
+                               # means re-issuing every cert from scratch on restore.
 DUMP_DIR="/var/backups/mysql-dumps"
 LOGFILE="/var/log/backup-agent.log"
 EXCLUDE_FILE="/etc/backup-agent/excludes.txt"
@@ -125,6 +128,11 @@ if [ -d "$LSWS_CONF_DIR" ]; then
     BACKUP_TARGETS+=("$LSWS_CONF_DIR")
 else
     echo "  NOTE: $LSWS_CONF_DIR not found, skipping (OpenLiteSpeed installed elsewhere?)"
+fi
+if [ -d "$ACME_DIR" ]; then
+    BACKUP_TARGETS+=("$ACME_DIR")
+else
+    echo "  NOTE: $ACME_DIR not found, skipping (not using acme.sh?)"
 fi
 if [ "$DUMP_OK" -eq 1 ]; then
     BACKUP_TARGETS+=("$DUMP_FILE")
