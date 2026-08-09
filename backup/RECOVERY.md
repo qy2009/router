@@ -39,6 +39,23 @@ crontab /etc/backup-agent/crontab_root.dump
 cd /data/<service> && docker compose up -d   # per service
 ```
 
+## 1b. Restoring a WordPress VPS (restic / backup-agent-wordpress.sh)
+
+Same restic mechanics as above, different target layout since there's no `docker compose` to bring back up — this is a native OpenLiteSpeed + MariaDB install.
+
+```bash
+source /etc/backup-agent/secrets.env
+export RESTIC_REPOSITORY="rclone:oci:Backup_CloudVPS/<host-label>"
+restic snapshots
+restic restore latest --target /                 # puts /var/www and the lsws vhost confs back in place
+mysql -u root < /var/backups/mysql-dumps/all-databases.sql   # restores every DB from the dump restic just restored
+chown -R www-data:www-data /var/www/<site>        # restic preserves ownership, but double check after a
+                                                    # cross-host restore (uid/gid can differ on a fresh box)
+systemctl restart lsws mariadb
+```
+
+If MariaDB root has a real password by the time you're restoring, source it from `MYSQL_PASSWORD` in the restored `secrets.env` and pass `-p"$MYSQL_PASSWORD"` to the `mysql` import above. Verify the site loads and the DB looks current (check a recent post/order/whatever's easy to eyeball) before repointing DNS.
+
 ## 2. Restoring a VPS (Duplicati)
 
 1. Same VPS provisioning as above.
