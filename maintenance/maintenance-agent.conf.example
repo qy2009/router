@@ -5,8 +5,9 @@ HOST_LABEL="phx-arm"
 # A fresh successful backup is mandatory before any package/image update.
 BACKUP_COMMAND="/usr/local/bin/backup-agent.sh"
 
-# Create a separate monthly Push monitor in Uptime Kuma.
-MAINTENANCE_KUMA_PUSH_URL="http://<unraid-ip>:3001/api/push/<maintenance-token>"
+# Create a separate monthly Push monitor in Uptime Kuma, then paste its URL.
+# Leave blank until the monitor exists.
+MAINTENANCE_KUMA_PUSH_URL=""
 
 UPDATE_SYSTEM=true
 UPDATE_OPENLITESPEED="auto"
@@ -32,5 +33,4 @@ HEALTHCHECK_URLS=(
 
 # Reuses PUSHOVER_USER/PUSHOVER_TOKEN from /etc/backup-agent/secrets.env.
 PUSHOVER_NOTIFY_SUCCESS=true
-
 
