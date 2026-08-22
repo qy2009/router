@@ -9,6 +9,9 @@ OpenLiteSpeed maintenance to the existing VPS backup system.
 - Normal package, Docker Engine, OpenLiteSpeed, and allowed container-image
   updates run on the first Tuesday of each month at 03:00, with up to 30
   minutes of randomized delay per host.
+- Package upgrades use `apt-get upgrade --with-new-pkgs`, allowing security
+  kernel meta-packages to install their newly versioned dependencies without
+  permitting the package removals that `full-upgrade` can perform.
 - A fresh `/usr/local/bin/backup-agent.sh` run must succeed before anything is
   updated. A failed backup aborts maintenance.
 - Reboots happen only when `/var/run/reboot-required` exists and all configured
