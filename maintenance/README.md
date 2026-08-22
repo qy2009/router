@@ -47,6 +47,15 @@ Pin stateful services such as MariaDB and PostgreSQL to a supported major
 version (`mariadb:11.4`, for example), never `latest`. An image update is not a
 database-major-version migration plan.
 
+## Maintained host Compose projects
+
+Host-specific authoritative Compose definitions live under `compose/<hostname>/`.
+They are reviewed source configuration, not backup-generated recovery exports.
+
+The first project is `compose/sjc-tool2`, covering its cAdvisor and
+node_exporter containers. Follow that directory's README for the supervised
+one-time migration before adding it to `COMPOSE_PROJECT_DIRS`.
+
 ## Install
 
 On each VPS, from the repository checkout:
