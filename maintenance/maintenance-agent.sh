@@ -91,7 +91,10 @@ update_system() {
     echo "[2/6] Updating packages within the current OS release..."
     export DEBIAN_FRONTEND=noninteractive
     apt-get update || fail "package-index refresh failed"
-    apt-get -y upgrade || fail "system package upgrade failed"
+    # --with-new-pkgs allows kernel/security meta-packages to pull in their
+    # newly versioned dependencies, but unlike full-upgrade it never removes
+    # installed packages to satisfy an upgrade.
+    apt-get -y --with-new-pkgs upgrade || fail "system package upgrade failed"
 }
 
 update_openlitespeed() {
