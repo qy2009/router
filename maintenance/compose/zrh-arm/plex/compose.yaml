@@ -1,0 +1,15 @@
+name: zrh-arm-plex
+
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    hostname: armzrh
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - path: /etc/zrh-arm-compose/plex.env
+        format: raw
+    volumes:
+      - /data/plex:/config
+      - /gdrivex:/x
