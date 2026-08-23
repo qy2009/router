@@ -1,0 +1,42 @@
+name: zrh-arm-portainer
+
+services:
+  edge-agent:
+    image: portainer/agent:2.39.2
+    container_name: portainer_edge_agent
+    restart: always
+    env_file:
+      - path: /etc/zrh-arm-compose/portainer-edge.env
+        format: raw
+    volumes:
+      - type: bind
+        source: /var/lib/docker/volumes
+        target: /var/lib/docker/volumes
+        bind:
+          propagation: rslave
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: /
+        target: /host
+        bind:
+          propagation: rslave
+      - portainer_agent_data:/data
+
+  agent:
+    image: portainer/agent:lts
+    container_name: portainer_agent
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    volumes:
+      - /data/portainer/agent:/data
+      - type: bind
+        source: /var/lib/docker/volumes
+        target: /var/lib/docker/volumes
+        bind:
+          propagation: rslave
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  portainer_agent_data:
+    external: true
