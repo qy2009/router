@@ -1,0 +1,38 @@
+name: zrh-arm-vpn
+
+services:
+  ipsec:
+    image: hwdsl2/ipsec-vpn-server:latest
+    container_name: ipsec-vpn-server
+    restart: always
+    privileged: true
+    security_opt:
+      - label=disable
+    env_file:
+      - path: /etc/zrh-arm-compose/ipsec.env
+        format: raw
+    ports:
+      - "500:500/udp"
+      - "4500:4500/udp"
+    volumes:
+      - /data/vpn:/etc/ipsec.d
+      - /lib/modules:/lib/modules:ro
+
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:latest
+    container_name: wg-easy
+    restart: unless-stopped
+    env_file:
+      - path: /etc/zrh-arm-compose/wg-easy.env
+        format: raw
+    ports:
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
+    volumes:
+      - /data/wg-easy:/etc/wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: "1"
+      net.ipv4.ip_forward: "1"
