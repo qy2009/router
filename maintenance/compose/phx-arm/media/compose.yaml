@@ -1,0 +1,29 @@
+name: phx-arm-media
+
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - path: /etc/phx-arm-compose/plex.env
+        format: raw
+    volumes:
+      - /data/plex:/config
+      - /debrid:/debrid
+      - /gdrive/Video:/video
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    env_file:
+      - path: /etc/phx-arm-compose/sonarr.env
+        format: raw
+    ports:
+      - "88:8989"
+    volumes:
+      - /data/sonarr:/config
+      - /gdrive/TV/finished:/downloads
+      - /gdrive/TV:/tv
