@@ -40,8 +40,8 @@ services:
     entrypoint:
       - /bin/sh
       - -c
-    command: >-
-      exec /bin/gost -L "$$(cat /run/secrets/cf-proxy-listener)"
+    command:
+      - 'exec /bin/gost -L "$(cat /run/secrets/cf-proxy-listener)"'
     ports:
       - "2096:2096"
     volumes:
