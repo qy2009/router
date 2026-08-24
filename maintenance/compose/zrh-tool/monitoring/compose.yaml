@@ -1,0 +1,59 @@
+name: zrh-tool-monitoring
+
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    container_name: alertmanager
+    user: nobody
+    network_mode: bridge
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    volumes:
+      - /data/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - /data/monitoring/alertmanager/data:/alertmanager
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: blackbox
+    network_mode: bridge
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/blackbox_exporter/config.yml
+    ports:
+      - "9115:9115"
+    volumes:
+      - /data/monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    user: "472"
+    network_mode: bridge
+    restart: unless-stopped
+    env_file:
+      - path: /etc/zrh-tool-compose/grafana.env
+        format: raw
+    ports:
+      - "3000:3000"
+    volumes:
+      - /data/monitoring/grafana:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    user: nobody
+    network_mode: bridge
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /data/monitoring/prometheus:/prometheus
+      - /data/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /data/monitoring/rules:/etc/prometheus/rules:ro
+      - /data/monitoring/targets:/etc/prometheus/targets:ro
