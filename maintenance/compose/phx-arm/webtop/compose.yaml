@@ -1,0 +1,23 @@
+name: phx-arm-webtop
+
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop:debian-kde
+    container_name: webtop
+    restart: unless-stopped
+    env_file:
+      - path: /etc/phx-arm-compose/webtop.env
+        format: raw
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - /data/webtop:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: /
+        target: /pc
+        bind:
+          propagation: rslave
+    security_opt:
+      - seccomp:unconfined
