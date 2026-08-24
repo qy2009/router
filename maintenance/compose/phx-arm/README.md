@@ -96,8 +96,11 @@ After every cutover passes, allowlist the seven directories above plus:
 
 ```text
 /opt/homepage-phx-arm
-/data/dsa
 ```
+
+The DSA project remains authoritative in `/data/dsa`, but it is intentionally
+excluded from automated pulls because it uses the locally built
+`dsa-custom:2026-07-31` image and requires deployment-specific build context.
 
 The pre-cutover Restic snapshot is `1fb62cb6`. Existing data, secret files,
 and the repository change to `backup/install-gdrive-mount.sh` must be
