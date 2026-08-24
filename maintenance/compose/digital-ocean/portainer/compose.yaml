@@ -1,0 +1,21 @@
+name: digital-ocean-portainer
+
+services:
+  agent:
+    image: portainer/agent:2.39.2
+    container_name: portainer_agent
+    restart: always
+    ports:
+      - "9001:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: /var/lib/docker/volumes
+        target: /var/lib/docker/volumes
+        bind:
+          propagation: rslave
+      - type: bind
+        source: /
+        target: /host
+        bind:
+          propagation: rslave

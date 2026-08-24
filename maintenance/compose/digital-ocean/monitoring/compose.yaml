@@ -1,0 +1,56 @@
+name: digital-ocean-monitoring
+
+services:
+  cadvisor:
+    image: ${CADVISOR_IMAGE:-gcr.io/cadvisor/cadvisor:latest}
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      CADVISOR_HEALTHCHECK_URL: http://localhost:8080/healthz
+    volumes:
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+        bind:
+          propagation: rslave
+      - type: bind
+        source: /var/run
+        target: /var/run
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+        bind:
+          propagation: rslave
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget --quiet --tries=1 --spider "$${CADVISOR_HEALTHCHECK_URL}" || exit 1
+      interval: 30s
+      timeout: 3s
+
+  node_exporter:
+    image: ${NODE_EXPORTER_IMAGE:-quay.io/prometheus/node-exporter:latest}
+    container_name: node_exporter
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    ports:
+      - "9100:9100"
+    volumes:
+      - type: bind
+        source: /
+        target: /host
+        read_only: true
+        bind:
+          propagation: rslave
