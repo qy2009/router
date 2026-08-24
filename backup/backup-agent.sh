@@ -54,6 +54,8 @@ UPLOAD_LOG=true  # copy the log to Drive after each run -> Backup_CloudVPS/_logs
 # snapshots implies — it's not 16 full copies.
 RETENTION="--keep-weekly 8 --keep-monthly 6 --keep-yearly 2"
 KUMA_PUSH_URL=""
+KUMA_PUSH_RETRIES=9          # retries cover slow local Kuma restarts after containers resume
+KUMA_PUSH_RETRY_DELAY=10     # seconds between heartbeat attempts
 PUSHOVER_NOTIFY_SUCCESS=true   # set false in conf if daily-success pings get noisy
 EMAIL_RECIPIENT=""             # e.g. qy2009@gmail.com — failure emails via ssmtp, with log tail
 
@@ -84,6 +86,31 @@ send_alert() {
     [ -n "${PUSHOVER_TOKEN:-}" ] && curl -s --form-string "token=$PUSHOVER_TOKEN" --form-string "user=$PUSHOVER_USER" \
         --form-string "title=${HOST_LABEL} Backup $STATUS" --form-string "message=$MSG" \
         https://api.pushover.net/1/messages.json >/dev/null
+}
+
+push_kuma_heartbeat() {
+    local STATUS=$1 MSG=$2 attempt
+    local RETRIES=${KUMA_PUSH_RETRIES:-9}
+    local RETRY_DELAY=${KUMA_PUSH_RETRY_DELAY:-10}
+
+    [ -z "$KUMA_PUSH_URL" ] && return 0
+
+    for ((attempt = 1; attempt <= RETRIES; attempt++)); do
+        if curl -fsS -m 10 -G "$KUMA_PUSH_URL" \
+            --data-urlencode "status=$STATUS" --data-urlencode "msg=$MSG" \
+            >/dev/null 2>&1; then
+            echo "Kuma heartbeat delivered on attempt $attempt."
+            return 0
+        fi
+
+        if [ "$attempt" -lt "$RETRIES" ]; then
+            echo "Kuma heartbeat attempt $attempt/$RETRIES failed; retrying in ${RETRY_DELAY}s."
+            sleep "$RETRY_DELAY"
+        fi
+    done
+
+    echo "WARNING: Kuma heartbeat delivery failed after $RETRIES attempts."
+    return 1
 }
 
 send_failure_email() {
@@ -211,12 +238,12 @@ if [ "$BACKUP_OK" -eq 1 ] && [ "$FORGET_OK" -eq 1 ]; then
     [ "$CONFIG_ERRORS" -gt 0 ] && SUMMARY="$SUMMARY $CONFIG_ERRORS compose export(s) failed."
     [ -n "$UNCOVERED" ] && SUMMARY="$SUMMARY WARNING: some container data outside backup scope — see log."
     [ "$PUSHOVER_NOTIFY_SUCCESS" = "true" ] && send_alert "SUCCESS" "$SUMMARY"
-    [ -n "$KUMA_PUSH_URL" ] && curl -fsS -m 10 -G "$KUMA_PUSH_URL" --data-urlencode "status=up" --data-urlencode "msg=OK" >/dev/null
+    push_kuma_heartbeat "up" "OK" || true
     exit 0
 else
     LOG_TAIL=$(tail -n 5 "$LOGFILE" 2>/dev/null | cut -c1-800)
     send_alert "FAILED" "Backup failed on ${HOST_LABEL}. Full log: ${LOGFILE}. Last lines: ${LOG_TAIL}"
     send_failure_email
-    [ -n "$KUMA_PUSH_URL" ] && curl -fsS -m 10 -G "$KUMA_PUSH_URL" --data-urlencode "status=down" --data-urlencode "msg=backup or forget failed" >/dev/null
+    push_kuma_heartbeat "down" "backup or forget failed" || true
     exit 1
 fi
