@@ -75,8 +75,10 @@ mandatory pre-update backup.
 ## Configure monitoring
 
 Create one Uptime Kuma Push monitor per host, separate from its backup monitor.
-Use a monthly interval with enough grace for the randomized timer delay, then
-set its URL as `MAINTENANCE_KUMA_PUSH_URL`.
+For Uptime Kuma v1, set the interval and retry interval to 1,728,000 seconds
+(20 days) with one maximum retry. This provides about 40 days before the
+monitor turns DOWN while keeping each timer below Node.js's roughly 24.8-day
+single-timer limit. Then set its URL as `MAINTENANCE_KUMA_PUSH_URL`.
 
 The agent retries Kuma delivery during slow local container restarts. The retry count and delay can be overridden with `MAINTENANCE_KUMA_PUSH_RETRIES` and `MAINTENANCE_KUMA_PUSH_RETRY_DELAY`.
 
