@@ -14,6 +14,8 @@ LOGFILE="/var/log/maintenance-agent.log"
 BACKUP_COMMAND="/usr/local/bin/backup-agent.sh"
 SECRETS_FILE="/etc/backup-agent/secrets.env"
 MAINTENANCE_KUMA_PUSH_URL=""
+MAINTENANCE_KUMA_PUSH_RETRIES=9
+MAINTENANCE_KUMA_PUSH_RETRY_DELAY=10
 PUSHOVER_NOTIFY_SUCCESS=true
 
 UPDATE_SYSTEM=true
@@ -55,18 +57,35 @@ send_alert() {
 }
 
 push_kuma() {
-    local status=$1 message=$2
+    local status=$1 message=$2 attempt
+    local retries=${MAINTENANCE_KUMA_PUSH_RETRIES:-9}
+    local retry_delay=${MAINTENANCE_KUMA_PUSH_RETRY_DELAY:-10}
+
     [ -n "$MAINTENANCE_KUMA_PUSH_URL" ] || return 0
-    curl -fsS -m 15 -G "$MAINTENANCE_KUMA_PUSH_URL" \
-        --data-urlencode "status=$status" \
-        --data-urlencode "msg=$message" >/dev/null || true
+
+    for ((attempt = 1; attempt <= retries; attempt++)); do
+        if curl -fsS -m 15 -G "$MAINTENANCE_KUMA_PUSH_URL" \
+            --data-urlencode "status=$status" \
+            --data-urlencode "msg=$message" >/dev/null 2>&1; then
+            echo "Kuma maintenance heartbeat delivered on attempt $attempt."
+            return 0
+        fi
+
+        if [ "$attempt" -lt "$retries" ]; then
+            echo "Kuma maintenance heartbeat attempt $attempt/$retries failed; retrying in ${retry_delay}s."
+            sleep "$retry_delay"
+        fi
+    done
+
+    echo "WARNING: Kuma maintenance heartbeat delivery failed after $retries attempts."
+    return 1
 }
 
 fail() {
     local message=$1
     echo "ERROR: $message"
     send_alert "FAILED" "$message. See $LOGFILE"
-    push_kuma down "$message"
+    push_kuma down "$message" || true
     exit 1
 }
 
@@ -198,7 +217,7 @@ finish_and_reboot_if_needed() {
 
     echo "[6/6] Maintenance completed successfully.${reboot_message}"
     [ "$PUSHOVER_NOTIFY_SUCCESS" = true ] && send_alert "SUCCESS" "Updates and health checks passed.${reboot_message}"
-    push_kuma up "Updates and health checks passed.${reboot_message}"
+    push_kuma up "Updates and health checks passed.${reboot_message}" || true
 
     if [ -f /var/run/reboot-required ] && [ "$AUTO_REBOOT" = true ]; then
         shutdown -r "+${REBOOT_DELAY_MINUTES}" "Scheduled reboot after successful monthly maintenance"
