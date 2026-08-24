@@ -78,6 +78,8 @@ Create one Uptime Kuma Push monitor per host, separate from its backup monitor.
 Use a monthly interval with enough grace for the randomized timer delay, then
 set its URL as `MAINTENANCE_KUMA_PUSH_URL`.
 
+The agent retries Kuma delivery during slow local container restarts. The retry count and delay can be overridden with `MAINTENANCE_KUMA_PUSH_RETRIES` and `MAINTENANCE_KUMA_PUSH_RETRY_DELAY`.
+
 The agent also reuses `PUSHOVER_USER` and `PUSHOVER_TOKEN` from
 `/etc/backup-agent/secrets.env`.
 
