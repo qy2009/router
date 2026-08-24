@@ -9,6 +9,10 @@ BACKUP_COMMAND="/usr/local/bin/backup-agent.sh"
 # Leave blank until the monitor exists.
 MAINTENANCE_KUMA_PUSH_URL=""
 
+# Retry long enough for a locally hosted Kuma container to restart after updates.
+MAINTENANCE_KUMA_PUSH_RETRIES=9
+MAINTENANCE_KUMA_PUSH_RETRY_DELAY=10
+
 UPDATE_SYSTEM=true
 UPDATE_OPENLITESPEED="auto"
 UPDATE_DOCKER_COMPOSE=true
