@@ -1,0 +1,16 @@
+name: phx-arm-vpn
+
+services:
+  ipsec-vpn-server:
+    image: hwdsl2/ipsec-vpn-server:latest
+    container_name: ipsec-vpn-server
+    restart: always
+    privileged: true
+    ports:
+      - "500:500/udp"
+      - "4500:4500/udp"
+    volumes:
+      - /data/vpn:/etc/ipsec.d
+      - /lib/modules:/lib/modules:ro
+    security_opt:
+      - label:disable

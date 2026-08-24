@@ -1,0 +1,63 @@
+name: phx-arm-infrastructure
+
+services:
+  nexterm:
+    image: nexterm/aio:latest
+    container_name: nexterm
+    restart: always
+    network_mode: host
+    env_file:
+      - path: /etc/phx-arm-compose/nexterm.env
+        format: raw
+    volumes:
+      - /data/nexterm:/app/data
+
+  certwarden:
+    image: ghcr.io/gregtwallace/certwarden:latest
+    container_name: certwarden
+    restart: unless-stopped
+    ports:
+      - "4050:4050"
+    volumes:
+      - /data/certwarden:/app/data
+
+  frps:
+    image: snowdreamtech/frps:latest
+    container_name: frps
+    restart: always
+    network_mode: host
+    env_file:
+      - path: /etc/phx-arm-compose/frps.env
+        format: raw
+    volumes:
+      - /data/frp/frps.toml:/etc/frp/frps.toml
+      - /log:/log
+
+  cf-proxy:
+    image: gogost/gost:latest
+    container_name: cf-proxy
+    restart: always
+    entrypoint:
+      - /bin/sh
+      - -c
+    command:
+      - 'exec /bin/gost -L "$(cat /run/secrets/cf-proxy-listener)"'
+    ports:
+      - "2096:2096"
+    volumes:
+      - type: bind
+        source: /etc/phx-arm-compose/cf-proxy-listener
+        target: /run/secrets/cf-proxy-listener
+        read_only: true
+
+  sub-store:
+    image: xream/sub-store:latest
+    container_name: sub-store
+    restart: always
+    env_file:
+      - path: /etc/phx-arm-compose/sub-store.env
+        format: raw
+    ports:
+      - "127.0.0.1:3010:3001"
+    volumes:
+      - /data/sub-store:/opt/app/data
