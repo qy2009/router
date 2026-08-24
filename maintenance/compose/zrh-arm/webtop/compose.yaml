@@ -1,0 +1,26 @@
+name: zrh-arm-webtop
+
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop:arch-kde
+    container_name: webtop
+    restart: unless-stopped
+    env_file:
+      - path: /etc/zrh-arm-compose/webtop.env
+        format: raw
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - /data/webtop:/config
+      - type: bind
+        source: /
+        target: /pc
+        bind:
+          propagation: rslave
+      - /var/run/docker.sock:/var/run/docker.sock
+    security_opt:
+      - seccomp=unconfined
+    shm_size: 4gb
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"

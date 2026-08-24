@@ -1,0 +1,13 @@
+name: zrh-arm-rclone
+
+services:
+  rclone-backup:
+    image: sroebert/rclone:latest
+    container_name: Rclone-backup
+    restart: always
+    env_file:
+      - path: /etc/zrh-arm-compose/rclone.env
+        format: raw
+    volumes:
+      - /data/rclone:/config
+      - /data/rclone/logs:/logs
