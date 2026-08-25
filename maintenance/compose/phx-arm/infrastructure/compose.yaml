@@ -24,6 +24,10 @@ services:
   frps:
     image: snowdreamtech/frps:latest
     container_name: frps
+    command:
+      - /usr/bin/frps
+      - -c
+      - /etc/frp/frps.toml
     restart: always
     network_mode: host
     env_file:
