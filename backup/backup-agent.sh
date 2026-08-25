@@ -42,6 +42,7 @@ ROOT_DIR="/root"
 LOGFILE="/var/log/backup-agent.log"
 EXCLUDE_FILE="/etc/backup-agent/excludes.txt"
 SYSTEM_FILES_MANIFEST="/etc/backup-agent/system-files.txt"
+COVERAGE_IGNORE_FILE="/etc/backup-agent/coverage-ignore.txt"
 CRONTAB_DUMP="/etc/backup-agent/crontab_root.dump"
 SECRETS_FILE="/etc/backup-agent/secrets.env"
 GDRIVE_REMOTE="gdrive"
@@ -158,21 +159,42 @@ done
 # or a bind mount outside those paths would be silently NOT backed up —
 # the compose file would come back on restore, but its data wouldn't.
 # This audit makes that failure loud instead of silent.
+path_is_covered() {
+    local src=$1 configured
+    # Stopped legacy containers can retain bind-mount definitions whose host
+    # paths were already removed. There is no data at those paths to protect.
+    [ -e "$src" ] || return 0
+    case "$src" in
+        "$DATA_DIR"|"$DATA_DIR"/*|"$ROOT_DIR"|"$ROOT_DIR"/*) return 0 ;;
+        /|/proc|/proc/*|/sys|/sys/*|/dev|/dev/*|/run|/run/*|/var/run|/var/run/*|/var/lib/docker|/var/lib/docker/volumes) return 0 ;;
+        /etc/localtime|/etc/timezone|/lib/modules) return 0 ;;
+    esac
+
+    for list in "$SYSTEM_FILES_MANIFEST" "$COVERAGE_IGNORE_FILE"; do
+        [ -f "$list" ] || continue
+        while IFS= read -r configured; do
+            [ -z "$configured" ] && continue
+            case "$configured" in \#*) continue ;; esac
+            case "$src" in
+                "$configured"|"$configured"/*) return 0 ;;
+            esac
+        done < "$list"
+    done
+    return 1
+}
+
 UNCOVERED=""
 for container in $containers; do
     while IFS= read -r src; do
         [ -z "$src" ] && continue
-        case "$src" in
-            "$DATA_DIR"/*|"$ROOT_DIR"/*) ;;                      # covered
-            /var/run/docker.sock|/etc/localtime|/etc/timezone) ;; # not data
-            *) UNCOVERED="$UNCOVERED\n  $container -> $src" ;;
-        esac
+        path_is_covered "$src" || UNCOVERED="$UNCOVERED\n  $container -> $src"
     done < <(docker inspect --format '{{range .Mounts}}{{.Source}}{{"\n"}}{{end}}' "$container" 2>/dev/null)
 done
 if [ -n "$UNCOVERED" ]; then
     echo -e "WARNING: container data OUTSIDE the backup scope:$UNCOVERED"
     echo "  Fix: recreate those containers with bind mounts under $DATA_DIR,"
-    echo "  or add the paths to $SYSTEM_FILES_MANIFEST."
+    echo "  add data paths to $SYSTEM_FILES_MANIFEST, or intentionally ignored"
+    echo "  non-data/cache/remote paths to $COVERAGE_IGNORE_FILE."
 fi
 
 # ---- stop every running container for a consistent snapshot ----
@@ -247,3 +269,4 @@ else
     push_kuma_heartbeat "down" "backup or forget failed" || true
     exit 1
 fi
+
