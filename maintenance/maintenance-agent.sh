@@ -25,6 +25,8 @@ AUTO_REBOOT=true
 REBOOT_DELAY_MINUTES=2
 HEALTH_TIMEOUT_SECONDS=180
 HTTP_CHECK_TIMEOUT_SECONDS=20
+HTTP_CHECK_RETRIES=12
+HTTP_CHECK_RETRY_DELAY=10
 
 # Deliberately explicit. Each entry must be a directory containing a real,
 # operator-maintained compose.yaml/docker-compose.yml -- not an autocompose
@@ -195,11 +197,19 @@ wait_for_containers() {
 }
 
 run_health_checks() {
-    local url
+    local url attempt
     echo "[5/6] Running post-update health checks..."
     wait_for_containers || fail "one or more previously running containers failed their health check"
     for url in "${HEALTHCHECK_URLS[@]}"; do
-        curl -fsSL --max-time "$HTTP_CHECK_TIMEOUT_SECONDS" "$url" >/dev/null || fail "HTTP health check failed: $url"
+        for ((attempt = 1; attempt <= HTTP_CHECK_RETRIES; attempt++)); do
+            if curl -fsSL --max-time "$HTTP_CHECK_TIMEOUT_SECONDS" "$url" >/dev/null; then
+                echo "  HTTP health check passed: $url (attempt $attempt)"
+                break
+            fi
+            [ "$attempt" -ge "$HTTP_CHECK_RETRIES" ] && fail "HTTP health check failed after $HTTP_CHECK_RETRIES attempts: $url"
+            echo "  waiting: HTTP health check $url (attempt $attempt/$HTTP_CHECK_RETRIES)"
+            sleep "$HTTP_CHECK_RETRY_DELAY"
+        done
     done
     if command -v docker >/dev/null 2>&1; then
         systemctl is-active --quiet docker || fail "Docker service is not active"
@@ -232,4 +242,3 @@ update_openlitespeed
 update_compose_projects
 run_health_checks
 finish_and_reboot_if_needed
-
