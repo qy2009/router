@@ -78,6 +78,18 @@ if [ ! -f /etc/backup-agent/excludes.txt ]; then
 /root/router
 EOF
 fi
+
+if [ ! -f /etc/backup-agent/coverage-ignore.txt ]; then
+    cat > /etc/backup-agent/coverage-ignore.txt << 'EOF'
+# Host paths intentionally not copied by Restic because they are remote media,
+# regenerable caches, or operating-system pseudo-filesystems. Add one absolute
+# path per line only after confirming it is not needed for disaster recovery.
+/gdrive
+/gdrivex
+/debrid
+/lib/modules
+EOF
+fi
 chmod 700 /etc/backup-agent
 
 if [ -f system-files.txt ] && [ ! -f /etc/backup-agent/system-files.txt ]; then
@@ -137,3 +149,4 @@ cat <<EOF
     tail -n 50 /var/log/backup-agent.log
 ============================================================
 EOF
+
