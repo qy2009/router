@@ -44,6 +44,17 @@ To require CloudRun and fail rather than fall back:
 /tmp/install-openclash.sh --source cloudrun
 ```
 
+If this older firmware cannot negotiate TLS with GitHub, download the matching
+OpenClash package in a desktop browser, upload it to `/tmp` through Nexterm,
+then install it without another network download:
+
+```sh
+/tmp/install-openclash.sh --file /tmp/your-openclash-package.run
+```
+
+The same option accepts an official `.ipk` on `opkg` firmware or `.apk` on
+newer `apk` firmware. The script refuses a package-manager mismatch.
+
 After reinstalling, restore only the OpenClash configuration directories from
 your backup if the firmware upgrade did not preserve them. Do not blindly
 overwrite all of `/etc/config` across major firmware generations.
