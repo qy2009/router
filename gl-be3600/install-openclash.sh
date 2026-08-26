@@ -8,15 +8,17 @@ set -eu
 CLOUD_REPO=wkccd/CloudRunFilesBuilder
 OFFICIAL_REPO=vernesong/OpenClash
 SOURCE=auto
+LOCAL_FILE=
 TMP_DIR=/tmp/openclash-install.$$
 
 usage() {
   cat <<'EOF'
-Usage: install-openclash.sh [--source auto|cloudrun|official]
+Usage: install-openclash.sh [--source auto|cloudrun|official] [--file PACKAGE]
 
   auto      CloudRun on compatible firmware; official .ipk on older opkg builds
   cloudrun  Require a matching CloudRunFilesBuilder .run asset
   official  Install the latest official luci-app-openclash all-package
+  --file    Install an already-downloaded .run, .ipk, or .apk file
 EOF
 }
 
@@ -25,6 +27,11 @@ while [ "$#" -gt 0 ]; do
     --source)
       [ "$#" -ge 2 ] || { echo "Missing value after --source" >&2; exit 2; }
       SOURCE=$2
+      shift 2
+      ;;
+    --file)
+      [ "$#" -ge 2 ] || { echo "Missing value after --file" >&2; exit 2; }
+      LOCAL_FILE=$2
       shift 2
       ;;
     -h|--help)
@@ -137,6 +144,31 @@ install_cloudrun() {
   sh "$FILE"
 }
 
+install_local() {
+  [ -f "$LOCAL_FILE" ] || { echo "Local package not found: $LOCAL_FILE" >&2; exit 1; }
+  case "$LOCAL_FILE" in
+    *.run)
+      sh "$LOCAL_FILE"
+      ;;
+    *.ipk)
+      [ "$PKG_MANAGER" = opkg ] || { echo "An .ipk requires opkg." >&2; exit 1; }
+      opkg update
+      opkg install "$LOCAL_FILE"
+      ;;
+    *.apk)
+      [ "$PKG_MANAGER" = apk ] || { echo "An .apk requires apk." >&2; exit 1; }
+      apk add --allow-untrusted "$LOCAL_FILE"
+      ;;
+    *)
+      echo "Unsupported local package type: $LOCAL_FILE" >&2
+      exit 1
+      ;;
+  esac
+}
+
+if [ -n "$LOCAL_FILE" ]; then
+  install_local
+else
 case "$SOURCE" in
   official)
     install_official
@@ -163,6 +195,7 @@ case "$SOURCE" in
     esac
     ;;
 esac
+fi
 
 if [ -x /etc/init.d/openclash ]; then
   /etc/init.d/openclash enable
