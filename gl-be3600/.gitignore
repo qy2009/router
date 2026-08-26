@@ -1,0 +1,4 @@
+*-backup-*.tar.gz
+*-backup-*.tar.gz.*
+*.enc
+
