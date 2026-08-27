@@ -12,7 +12,9 @@ usage() {
 Usage: backup-router.sh [-o OUTPUT_DIRECTORY] [--encrypt]
 
 Creates a dated backup containing GL.iNet/OpenWrt configuration, VPN material,
-Wi-Fi settings, Tailscale state, GoodCloud configuration, and OpenClash data.
+Wi-Fi settings, Tailscale state, GoodCloud configuration, and selected
+OpenClash configuration. OpenClash cores, caches, logs, and databases are not
+included.
 
   -o DIR       Write the backup to DIR (default: /tmp)
   --encrypt    Encrypt with AES-256; OpenSSL will ask for a passphrase
@@ -75,9 +77,21 @@ copy_path() {
 # Tailscale UCI settings, OpenClash UCI settings, and installed service config.
 copy_path /etc/config
 
+# OpenClash application files and downloaded runtime data are intentionally not
+# backed up. These directories contain the UCI-selected profiles, custom rules,
+# and provider files that may be locally maintained or unavailable after a
+# firmware upgrade.
+for OPENCLASH_PATH in \
+  /etc/openclash/config \
+  /etc/openclash/custom \
+  /etc/openclash/proxy_provider \
+  /etc/openclash/rule_provider
+do
+  copy_path "$OPENCLASH_PATH"
+done
+
 # Stateful data and credentials that sysupgrade backups may not always retain.
 for PATH_ITEM in \
-  /etc/openclash \
   /etc/tailscale \
   /etc/openvpn \
   /etc/wireguard \
@@ -111,8 +125,10 @@ This archive contains private keys, VPN credentials, Wi-Fi passwords, and tokens
 Keep it private. To inspect it, extract into an empty directory.
 
 After a firmware upgrade, restore only configuration compatible with the new
-firmware. Copy payload/etc/config and needed service directories into place,
-then reinstall missing packages before restarting services or rebooting.
+firmware. Reinstall OpenClash before restoring its selected config, custom,
+proxy_provider, and rule_provider directories. Do not restore old OpenClash
+cores, caches, logs, or downloaded databases. Reinstall other missing packages
+before restarting services or rebooting.
 EOF
 
 tar -C "$WORK" -czf "$ARCHIVE" metadata payload RESTORE.txt
@@ -136,5 +152,4 @@ fi
 
 echo "Backup created: $ARCHIVE"
 echo "WARNING: This backup contains secrets. Do not commit it to GitHub."
-
 
