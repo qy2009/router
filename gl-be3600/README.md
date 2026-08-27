@@ -1,7 +1,7 @@
 # GL.iNet GL-BE3600 backup and OpenClash recovery
 
-These scripts were tailored against a GL-BE3600 running OpenWrt
-21.02-SNAPSHOT on `mediatek/mt7981` (`aarch64_cortex-a53`, `opkg`).
+These scripts were verified against the `travel-router` GL-BE3600 running
+OpenWrt 23.05-SNAPSHOT on Qualcomm IPQ5332 (`aarch64`, `opkg`).
 
 ## Back up before a firmware update
 
@@ -17,8 +17,20 @@ router before upgrading. `/tmp` is erased during reboot or firmware flashing.
 Keep the encryption password somewhere safe.
 
 The archive includes `/etc/config`, VPN material, Wi-Fi configuration,
-Tailscale state, GoodCloud's `gl-cloud` UCI config, OpenClash configuration,
-Dropbear keys, cron jobs, and an installed-package manifest.
+Tailscale state, GoodCloud's `gl-cloud` UCI config, Dropbear keys, cron jobs,
+and an installed-package manifest.
+
+For OpenClash, it selectively includes:
+
+- `/etc/config/openclash` through the normal `/etc/config` backup
+- `/etc/openclash/config` for YAML profiles
+- `/etc/openclash/custom` for custom rules and overrides
+- `/etc/openclash/proxy_provider` and `/etc/openclash/rule_provider`
+
+It intentionally excludes the OpenClash application, cores, history, logs,
+caches, and downloaded GeoIP/GeoSite databases. Reinstall OpenClash first after
+a firmware upgrade, restore the selected configuration, and let the new version
+download fresh runtime data.
 
 **Never commit a backup archive to this repository.** It contains Wi-Fi
 passwords, VPN private keys, Tailscale identity, and cloud tokens.
@@ -34,9 +46,9 @@ chmod 700 /tmp/install-openclash.sh
 
 Automatic mode uses a matching package from
 [CloudRunFilesBuilder](https://github.com/wkccd/CloudRunFilesBuilder/releases)
-on compatible OpenWrt 24/25 firmware. On the current OpenWrt 21.02 `opkg`
+on compatible OpenWrt 24/25 firmware. On the verified OpenWrt 23.05 `opkg`
 firmware, it uses OpenClash's official architecture-independent `.ipk` because
-the latest `25-...` CloudRun package targets newer `apk` firmware.
+the latest CloudRun packages target different firmware generations.
 
 To require CloudRun and fail rather than fall back:
 
@@ -58,5 +70,4 @@ newer `apk` firmware. The script refuses a package-manager mismatch.
 After reinstalling, restore only the OpenClash configuration directories from
 your backup if the firmware upgrade did not preserve them. Do not blindly
 overwrite all of `/etc/config` across major firmware generations.
-
 
