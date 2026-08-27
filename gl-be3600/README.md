@@ -37,6 +37,23 @@ passwords, VPN private keys, Tailscale identity, and cloud tokens.
 
 ## Reinstall OpenClash after a firmware update
 
+For the normal case where the firmware retained all settings, reinstall both
+OpenClash and the LuCI Argon theme with:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/qy2009/router/main/gl-be3600/after-firmware-upgrade.sh \
+  -o /tmp/after-firmware-upgrade.sh
+chmod 700 /tmp/after-firmware-upgrade.sh
+/tmp/after-firmware-upgrade.sh
+```
+
+This does not restore or overwrite router settings. It runs the OpenClash
+installer below, installs the latest official Argon package plus its optional
+configuration companion, and refreshes LuCI. Use `--skip-openclash` or
+`--skip-argon` if only one package is needed.
+
+### OpenClash installer by itself
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/qy2009/router/main/gl-be3600/install-openclash.sh \
   -o /tmp/install-openclash.sh
