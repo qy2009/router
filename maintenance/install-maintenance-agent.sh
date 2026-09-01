@@ -43,6 +43,8 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+Environment=HOME=/root
+Environment=XDG_CACHE_HOME=/root/.cache
 ExecStart=/usr/local/bin/maintenance-agent.sh
 Nice=10
 IOSchedulingClass=best-effort
