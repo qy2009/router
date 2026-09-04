@@ -1,0 +1,17 @@
+name: phx-casa-loki
+
+services:
+  loki:
+    image: grafana/loki:3.7.6
+    container_name: loki
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/loki-config.yaml
+    ports:
+      - "172.17.0.1:3100:3100"
+      - "100.111.111.118:3100:3100"
+    volumes:
+      - /data/monitoring/loki:/loki
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    mem_limit: 1g
+    cpus: 1.0

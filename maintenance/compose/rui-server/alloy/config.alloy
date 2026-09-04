@@ -1,0 +1,32 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "/(.*)"
+    target_label = "container"
+  }
+}
+loki.source.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  targets = discovery.relabel.containers.output
+  labels = { host = "rui-server", job = "docker" }
+  forward_to = [loki.process.docker.receiver]
+}
+loki.process "docker" {
+  stage.docker { }
+  forward_to = [loki.write.central.receiver]
+}
+loki.source.file "unraid_syslog" {
+  targets = [
+    { __path__ = "/var/log/host/syslog", host = "rui-server", job = "unraid-syslog" },
+  ]
+  forward_to = [loki.write.central.receiver]
+}
+loki.write "central" {
+  endpoint {
+    url = "http://100.111.111.118:3100/loki/api/v1/push"
+  }
+}

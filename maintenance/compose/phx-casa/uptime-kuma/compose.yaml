@@ -1,0 +1,12 @@
+name: phx-casa-uptime-kuma
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: phx-casa-uptime-kuma
+    restart: unless-stopped
+    mem_limit: 200m
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - /data/uptime-kuma/uptime-kuma-data:/app/data

@@ -1,0 +1,6 @@
+services:
+  grafana:
+    volumes:
+      - /data/monitoring/grafana/loki-datasource.yml:/etc/grafana/provisioning/datasources/loki.yml:ro
+      - ./provisioning/dashboards/router-logs.yaml:/etc/grafana/provisioning/dashboards/router-logs.yaml:ro
+      - ./dashboards:/var/lib/grafana/dashboards/router-logs:ro

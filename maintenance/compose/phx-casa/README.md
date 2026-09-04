@@ -36,3 +36,33 @@ After validation, allowlist:
 ```text
 /root/router/maintenance/compose/phx-casa/portainer
 ```
+
+
+## Central logging
+
+Grafana uses the Loki data source on phx-casa. Loki listens on
+`172.17.0.1:3100` for local containers and `100.111.111.118:3100` for
+Tailscale-connected Alloy agents. It is not published on the public interface.
+
+Alloy collects local Docker logs, the systemd journal, and
+`/var/log/backup-agent.log` plus `/var/log/maintenance-agent.log`.
+
+Router syslog uses Tailscale-only UDP listeners:
+
+- `100.111.111.118:1514/udp`: `xia-router`
+- `100.111.111.118:1515/udp`: `travel-router` (enable when reachable)
+- `100.111.111.118:1516/udp`: `home-router`
+
+OpenWrt configuration:
+
+```sh
+uci set system.@system[0].log_ip='100.111.111.118'
+uci set system.@system[0].log_port='1514'
+uci set system.@system[0].log_proto='udp'
+uci set system.@system[0].log_remote='1'
+uci commit system
+/etc/init.d/log restart
+```
+
+Useful LogQL selectors are `{job="script"}` and
+`{job="router-syslog", host="xia-router"}`.

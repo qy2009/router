@@ -1,0 +1,78 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "containers" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.containers.output
+  labels        = { host = "phx-casa", job = "docker" }
+  forward_to    = [loki.process.docker.receiver]
+}
+
+loki.process "docker" {
+  stage.docker { }
+  forward_to = [loki.write.central.receiver]
+}
+
+loki.source.journal "systemd" {
+  path       = "/var/log/journal"
+  max_age    = "24h"
+  labels     = { host = "phx-casa", job = "systemd" }
+  forward_to = [loki.write.central.receiver]
+}
+
+loki.write "central" {
+  endpoint {
+    url = "http://172.17.0.1:3100/loki/api/v1/push"
+  }
+}
+
+loki.source.file "script_logs" {
+  targets = [
+    {
+      __path__ = "/var/log/host/backup-agent.log",
+      host     = "phx-casa",
+      job      = "script",
+      script   = "backup-agent",
+    },
+    {
+      __path__ = "/var/log/host/maintenance-agent.log",
+      host     = "phx-casa",
+      job      = "script",
+      script   = "maintenance-agent",
+    },
+  ]
+  forward_to = [loki.write.central.receiver]
+}
+
+loki.source.syslog "routers" {
+  listener {
+    address       = "0.0.0.0:1514"
+    protocol      = "udp"
+    syslog_format = "rfc3164"
+    labels        = { job = "router-syslog", host = "xia-router", router = "xia-router" }
+  }
+  listener {
+    address       = "0.0.0.0:1515"
+    protocol      = "udp"
+    syslog_format = "rfc3164"
+    labels        = { job = "router-syslog", host = "travel-router", router = "travel-router" }
+  }
+  listener {
+    address       = "0.0.0.0:1516"
+    protocol      = "udp"
+    syslog_format = "rfc3164"
+    labels        = { job = "router-syslog", host = "home-router", router = "home-router" }
+  }
+  forward_to = [loki.write.central.receiver]
+}

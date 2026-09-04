@@ -1,0 +1,28 @@
+name: phx-casa-alloy
+
+services:
+  alloy:
+    image: grafana/alloy:v1.19.2
+    container_name: alloy
+    user: "0:0"
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy
+      - /etc/alloy/config.alloy
+    ports:
+      - "127.0.0.1:12345:12345"
+      - "100.111.111.118:1514:1514/udp"
+      - "100.111.111.118:1515:1515/udp"
+      - "100.111.111.118:1516:1516/udp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/log:/var/log/host:ro
+      - /data/monitoring/alloy:/var/lib/alloy
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+    mem_limit: 512m
+    cpus: 0.5
