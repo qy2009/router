@@ -1,0 +1,90 @@
+#!/bin/sh /etc/rc.common
+
+# Rebind OpenWrt's remote logread socket after Tailscale is ready.
+# The stock log service starts before networking and can otherwise keep the
+# cellular WAN address as its UDP source for the lifetime of the process.
+
+START=99
+STOP=10
+
+PID_FILE="/var/run/remote-syslog-rebind.pid"
+WAIT_ATTEMPTS=90
+WAIT_INTERVAL=2
+
+target_ip() {
+    uci -q get system.@system[0].log_ip
+}
+
+target_port() {
+    uci -q get system.@system[0].log_port || echo 514
+}
+
+tailscale_ip() {
+    tailscale ip -4 2>/dev/null | head -n 1
+}
+
+route_source() {
+    ip route get "$1" 2>/dev/null | \
+        sed -n 's/.* src \([^ ]*\).*/\1/p' | head -n 1
+}
+
+forwarder_source() {
+    peer="$1:$2"
+    netstat -anp 2>/dev/null | awk -v peer="$peer" \
+        '$5 == peer && $7 ~ /logread/ { split($4, local_addr, ":"); print local_addr[1]; exit }'
+}
+
+wait_and_rebind() {
+    trap 'rm -f "$PID_FILE"' EXIT INT TERM
+
+    destination="$(target_ip)"
+    port="$(target_port)"
+    [ -n "$destination" ] || {
+        logger -t remote-syslog-rebind "No remote syslog target is configured"
+        return 1
+    }
+
+    attempt=1
+    while [ "$attempt" -le "$WAIT_ATTEMPTS" ]; do
+        ts_ip="$(tailscale_ip)"
+        selected_source="$(route_source "$destination")"
+
+        if [ -n "$ts_ip" ] && [ "$selected_source" = "$ts_ip" ]; then
+            /etc/init.d/log restart
+            sleep 2
+
+            bound_source="$(forwarder_source "$destination" "$port")"
+            if [ "$bound_source" = "$ts_ip" ]; then
+                logger -t remote-syslog-rebind \
+                    "Remote syslog rebound through Tailscale source $ts_ip to $destination:$port"
+                return 0
+            fi
+        fi
+
+        sleep "$WAIT_INTERVAL"
+        attempt=$((attempt + 1))
+    done
+
+    logger -t remote-syslog-rebind \
+        "Failed to bind remote syslog through Tailscale to $destination:$port"
+    return 1
+}
+
+start() {
+    if [ -r "$PID_FILE" ]; then
+        old_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+        [ -n "$old_pid" ] && kill -0 "$old_pid" 2>/dev/null && return 0
+        rm -f "$PID_FILE"
+    fi
+
+    wait_and_rebind &
+    echo "$!" > "$PID_FILE"
+}
+
+stop() {
+    if [ -r "$PID_FILE" ]; then
+        old_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+        [ -n "$old_pid" ] && kill "$old_pid" 2>/dev/null || true
+        rm -f "$PID_FILE"
+    fi
+}

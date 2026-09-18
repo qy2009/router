@@ -10,6 +10,29 @@ OpenWrt 21.02-SNAPSHOT, `aarch64_cortex-a53`, using `opkg`.
   rules, and a notification configuration example
 - `after-firmware-upgrade.sh` — reinstalls packages commonly removed by a
   firmware upgrade without overwriting retained UCI settings
+- `install-remote-syslog.sh` — sends router logs to Loki/Alloy through
+  Tailscale and installs the boot-order rebind service
+- `remote-syslog-rebind.init` — waits for the Tailscale route after boot,
+  then restarts OpenWrt's remote log forwarder with the correct source address
+
+## Remote logs through Tailscale
+
+OpenWrt starts its log service before Tailscale. Without the rebind service,
+the remote UDP socket can remain bound to the cellular WAN address after a
+reboot and router logs never reach Alloy.
+
+Install the permanent fix with:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/qy2009/router/main/gl-x3000/install-remote-syslog.sh \
+  -o /tmp/install-remote-syslog.sh
+chmod 700 /tmp/install-remote-syslog.sh
+/tmp/install-remote-syslog.sh
+```
+
+The current default receiver is `100.111.111.118:1516/udp` (`phx-casa`). The
+service waits up to three minutes for Tailscale, restarts only the logging
+service, verifies the source address, and is retained through sysupgrade.
 
 ## Install or update the weekly backup
 
