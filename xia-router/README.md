@@ -17,6 +17,8 @@ path; the router does not need a key that can log into PHX.
   notification and an eight-day heartbeat window. The PHX job pushes `up`
   after both copies verify and attempts to push `down` on a failed run. Its
   token belongs in `/etc/xia-router-backup-monitor.env` (mode 600), never Git.
+  Kuma listens on phx-casa loopback; the PHX job sends its heartbeat over
+  Tailscale SSH to phx-casa, without opening Kuma's port on the tailnet.
 - PHX-ARM: `/usr/local/sbin/verify-backup.sh /data/router-backups/xia-router/latest`
   checks hashes, gzip/tar integrity, and critical paths without changing the
   router.

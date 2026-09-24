@@ -11,13 +11,28 @@ MONITOR_ENV=/etc/xia-router-backup-monitor.env
 SSH=(ssh -o BatchMode=yes -o ConnectTimeout=10 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 "$ROUTER")
 
 KUMA_PUSH_URL=''
+KUMA_PUSH_SSH_HOST=''
 if [[ -r "$MONITOR_ENV" ]]; then source "$MONITOR_ENV"; fi
 kuma_push() {
   local status=$1 message=$2 response
   [[ -n "$KUMA_PUSH_URL" ]] || return 0
-  response=$(curl -fsS --connect-timeout 8 --max-time 20 --get \
-    --data-urlencode "status=$status" --data-urlencode "msg=$message" \
-    "$KUMA_PUSH_URL") || return 1
+  if [[ -n "$KUMA_PUSH_SSH_HOST" ]]; then
+    # Kuma is bound to loopback on phx-casa. Pass the secret URL through SSH
+    # stdin rather than a process argument or a public endpoint.
+    [[ "$KUMA_PUSH_URL" =~ ^http://127\.0\.0\.1:3001/api/push/[A-Za-z0-9_-]+$ ]] || return 1
+    [[ "$KUMA_PUSH_SSH_HOST" =~ ^[A-Za-z0-9._-]+$ ]] || return 1
+    [[ "$status" =~ ^(up|down)$ && "$message" != *'"'* && "$message" != *'\'* && "$message" != *$'\n'* && "$message" != *$'\r'* ]] || return 1
+    response=$({
+      printf 'url = "%s"\n' "$KUMA_PUSH_URL"
+      printf 'get\nfail\nsilent\nshow-error\nconnect-timeout = 8\nmax-time = 20\n'
+      printf 'data-urlencode = "status=%s"\n' "$status"
+      printf 'data-urlencode = "msg=%s"\n' "$message"
+    } | ssh -o BatchMode=yes -o ConnectTimeout=8 "$KUMA_PUSH_SSH_HOST" 'curl -K -') || return 1
+  else
+    response=$(curl -fsS --connect-timeout 8 --max-time 20 --get \
+      --data-urlencode "status=$status" --data-urlencode "msg=$message" \
+      "$KUMA_PUSH_URL") || return 1
+  fi
   [[ "$response" == *'"ok":true'* ]]
 }
 
