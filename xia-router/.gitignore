@@ -1,0 +1,7 @@
+*.tar.gz
+*.ipk
+*.env
+SHA256SUMS
+packages.txt
+router-info.txt
+contents.txt
